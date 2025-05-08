@@ -1,0 +1,57 @@
+{
+    "EX": 68.0,
+    "total_correct_count": 17,
+    "total_item_count": 25,
+    "simple_stats": {
+        "correct_number": 7,
+        "count": 11,
+        "ex": 63.63636363636363
+    },
+    "moderate_stats": {
+        "correct_number": 6,
+        "count": 9,
+        "ex": 66.66666666666666
+    },
+    "challenging_stats": {
+        "correct_number": 4,
+        "count": 5,
+        "ex": 80.0
+    },
+    "fail_q_ids": [
+        1152,
+        1205,
+        1256,
+        847,
+        948,
+        539,
+        198,
+        239
+    ],
+    "config": {
+        "mode": "dev",
+        "model": "gpt-4.1-mini",
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "max_tokens": 4096,
+        "n": 1,
+        "pipeline_order": "SF-CSG-QE-SR",
+        "enrichment_level": "complex",
+        "enrichment_level_shot_number": 3,
+        "enrichment_few_shot_schema_existance": false,
+        "filtering_level_shot_number": 3,
+        "filtering_few_shot_schema_existance": false,
+        "cfg": true,
+        "generation_level_shot_number": 3,
+        "generation_few_shot_schema_existance": false,
+        "db_sample_limit": 10,
+        "relevant_description_number": 20,
+        "seed": 42
+    },
+    "tempo_medias": {
+        "avg_SF": 23.504533338546754,
+        "avg_CSG": 13.473760890960694,
+        "avg_QE": 5.442319536209107,
+        "avg_SR": 14.659173707962037,
+        "avg_total_time": 57.079787473678586
+    }
+}

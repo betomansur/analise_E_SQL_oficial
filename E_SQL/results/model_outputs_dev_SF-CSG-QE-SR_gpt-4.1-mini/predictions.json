@@ -1,0 +1,1934 @@
+[
+    {
+        "question_id": 1471,
+        "db_id": "debit_card_specializing",
+        "question": "What is the ratio of customers who pay in EUR against customers who pay in CZK?",
+        "evidence": "ratio of customers who pay in EUR against customers who pay in CZK = count(Currency = 'EUR') / count(Currency = 'CZK').",
+        "SQL": "SELECT  CAST(SUM(CASE WHEN `Currency` = 'EUR' THEN 1 ELSE 0 END) AS DOUBLE) / SUM(CASE WHEN `Currency` = 'CZK' THEN 1 ELSE 0 END) FROM `customers`",
+        "difficulty": "simple",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the ratio of customers who pay in EUR against those who pay in CZK. This directly relates to the currency used by customers. The relevant information is stored in the 'customers' table, specifically in the 'Currency' column which indicates the currency each customer uses. No other tables or columns are needed because the question focuses solely on counting customers by their currency type.",
+            "filtered_schema_dict": {
+                "customers": [
+                    "Currency"
+                ]
+            },
+            "prompt_tokens": 3781,
+            "completion_tokens": 106,
+            "total_tokens": 3887
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "customers": [
+                    "Currency"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE customers (\nCustomerID INTEGER primary key, \nCurrency TEXT,\n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the ratio of customers who pay in EUR against those who pay in CZK. The relevant data is in the 'customers' table, specifically the 'Currency' column. We need to count the number of customers with Currency = 'EUR' and the number with Currency = 'CZK', then divide the former by the latter. To avoid division by zero, we ensure the denominator count is not zero. The SQL query will use conditional aggregation with SUM and CASE to count each currency type, cast the counts to REAL for accurate division, and compute the ratio accordingly.",
+            "possible_sql": "SELECT CAST(SUM(CASE WHEN `Currency` = 'EUR' THEN 1 ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN `Currency` = 'CZK' THEN 1 ELSE 0 END), 0) AS `EUR_to_CZK_ratio` FROM `customers`",
+            "exec_err": "",
+            "prompt_tokens": 2403,
+            "completion_tokens": 197,
+            "total_tokens": 2600
+        },
+        "possible_sql": "SELECT CAST(SUM(CASE WHEN `Currency` = 'EUR' THEN 1 ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN `Currency` = 'CZK' THEN 1 ELSE 0 END), 0) AS `EUR_to_CZK_ratio` FROM `customers`",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the ratio of customers who pay in EUR against those who pay in CZK. The relevant information is the currency used by customers, which is stored in the 'Currency' column of the 'customers' table. To calculate this ratio, we need to count the number of customers whose Currency is 'EUR' and divide it by the number of customers whose Currency is 'CZK'. There are no additional conditions or filters specified, so the calculation involves simple aggregation on the 'customers' table. The SQL query would involve counting customers grouped by the Currency column or using conditional aggregation to count customers for each currency and then dividing these counts. This reasoning directly links the question to the 'customers' table and its 'Currency' column, and the calculation is based on the counts of customers per currency value. Therefore, the enriched question should explicitly mention the 'customers' table, the 'Currency' column, the specific currency values 'EUR' and 'CZK', and the ratio calculation as count of customers paying in EUR divided by count of customers paying in CZK, making it clear and straightforward for SQL translation.",
+            "enriched_question": "Please find the ratio of the number of customers who pay in EUR (customers.Currency = 'EUR') to the number of customers who pay in CZK (customers.Currency = 'CZK') from the customers table. Calculate this ratio as the count of customers with Currency = 'EUR' divided by the count of customers with Currency = 'CZK'.",
+            "prompt_tokens": 6285,
+            "completion_tokens": 313,
+            "total_tokens": 6598
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the ratio of customers who pay in EUR against those who pay in CZK. The relevant data is in the 'customers' table, specifically the 'Currency' column. To find this ratio, we need to count the number of customers with Currency = 'EUR' and divide it by the number of customers with Currency = 'CZK'. The possible SQL query uses conditional aggregation with SUM and CASE statements to count customers for each currency. It also uses CAST to convert the numerator to REAL to ensure floating-point division and NULLIF to avoid division by zero if there are no customers paying in CZK. The query references the correct table and column names with backticks as per the schema. This query correctly calculates the ratio as requested.",
+            "predicted_sql": "SELECT CAST(SUM(CASE WHEN `Currency` = 'EUR' THEN 1 ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN `Currency` = 'CZK' THEN 1 ELSE 0 END), 0) AS `EUR_to_CZK_ratio` FROM `customers`",
+            "prompt_tokens": 2180,
+            "completion_tokens": 230,
+            "total_tokens": 2410
+        },
+        "predicted_sql": "SELECT CAST(SUM(CASE WHEN `Currency` = 'EUR' THEN 1 ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN `Currency` = 'CZK' THEN 1 ELSE 0 END), 0) AS `EUR_to_CZK_ratio` FROM `customers`",
+        "total_usage": {
+            "prompt_tokens": 10868,
+            "completion_tokens": 740,
+            "total_tokens": 11608
+        },
+        "timing": {
+            "SF": 8.625149250030518,
+            "CSG": 3.9021620750427246,
+            "QE": 5.164764404296875,
+            "SR": 5.284957408905029,
+            "total_time": 22.977033138275146
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 1514,
+        "db_id": "debit_card_specializing",
+        "question": "What kind of currency did the customer paid at 16:25:00 in 2012/8/24?",
+        "evidence": "'2012/8/24' can be represented by '2012-08-24'; ",
+        "SQL": "SELECT DISTINCT\n  `T3`.`Currency`\nFROM `transactions_1k` AS `T1`\nINNER JOIN `gasstations` AS `T2`\n  ON `T1`.`GasStationID` = `T2`.`GasStationID`\nINNER JOIN `customers` AS `T3`\n  ON `T1`.`CustomerID` = `T3`.`CustomerID`\nWHERE\n  `T1`.`Date` = '2012-08-24' AND `T1`.`Time` = '16:25:00'",
+        "difficulty": "simple",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks about the currency used by a customer who made a payment at a specific time (16:25:00) on a specific date (2012-08-24). To answer this, we need to identify the customer involved in the transaction at that date and time. The transactions_1k table contains transaction details including Date, Time, and CustomerID, which allows us to find the relevant transaction and the customer who made it. Once we have the CustomerID, we can look up the currency used by that customer in the customers table, which contains the Currency column. Therefore, the relevant tables are transactions_1k and customers. From transactions_1k, we need Date, Time, and CustomerID to filter the transaction and identify the customer. From customers, we need CustomerID to join and Currency to answer the question about the currency used.",
+            "filtered_schema_dict": {
+                "transactions_1k": [
+                    "Date",
+                    "Time",
+                    "CustomerID"
+                ],
+                "customers": [
+                    "CustomerID",
+                    "Currency"
+                ]
+            },
+            "prompt_tokens": 3660,
+            "completion_tokens": 217,
+            "total_tokens": 3877
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "transactions_1k": [
+                    "Date",
+                    "Time",
+                    "CustomerID"
+                ],
+                "customers": [
+                    "CustomerID",
+                    "Currency"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE transactions_1k (\nTransactionID INTEGER primary key, \nDate DATE,\nTime TEXT,\nCustomerID INTEGER,\n)\nCREATE TABLE customers (\nCustomerID INTEGER primary key, \nCurrency TEXT,\n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the currency used by the customer who made a payment at a specific date and time: '2012-08-24' and '16:25:00'. The transactions_1k table contains the transaction details including Date, Time, and CustomerID. The customers table contains the Currency information for each CustomerID. To find the currency, we need to join these two tables on CustomerID, filter the transactions by the given date and time, and then select the corresponding currency.",
+            "possible_sql": "SELECT `customers`.`Currency` FROM `transactions_1k` INNER JOIN `customers` ON `transactions_1k`.`CustomerID` = `customers`.`CustomerID` WHERE `transactions_1k`.`Date` = '2012-08-24' AND `transactions_1k`.`Time` = '16:25:00' LIMIT 1",
+            "exec_err": "",
+            "prompt_tokens": 2777,
+            "completion_tokens": 189,
+            "total_tokens": 2966
+        },
+        "possible_sql": "SELECT `customers`.`Currency` FROM `transactions_1k` INNER JOIN `customers` ON `transactions_1k`.`CustomerID` = `customers`.`CustomerID` WHERE `transactions_1k`.`Date` = '2012-08-24' AND `transactions_1k`.`Time` = '16:25:00' LIMIT 1",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks about the currency used by a customer who made a payment at a specific time (16:25:00) on a specific date (2012/8/24). The database schema includes two relevant tables: transactions_1k and customers. The transactions_1k table contains transaction details including Date, Time, and CustomerID, while the customers table contains CustomerID and Currency information. To answer the question, we need to identify the CustomerID from the transactions_1k table where Date = '2012-08-24' and Time = '16:25:00', then use this CustomerID to find the corresponding Currency in the customers table. The evidence clarifies the date format conversion from '2012/8/24' to '2012-08-24'. The possible SQL conditions also confirm filtering on transactions_1k.Date = '2012-08-24' and transactions_1k.Time = '16:25:00'. Therefore, the enriched question should explicitly mention these tables and columns, the join condition on CustomerID, and the filtering conditions on Date and Time to clearly guide the SQL query construction.",
+            "enriched_question": "Please find the currency (customers.Currency) used by the customer who made a payment at the time '16:25:00' (transactions_1k.Time = '16:25:00') on the date '2012-08-24' (transactions_1k.Date = '2012-08-24'). To answer this, join the transactions_1k and customers tables on the CustomerID column (transactions_1k.CustomerID = customers.CustomerID), apply the conditions on Date and Time in the transactions_1k table, and then select the Currency from the customers table.",
+            "prompt_tokens": 6349,
+            "completion_tokens": 373,
+            "total_tokens": 6722
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the currency used by the customer who made a payment at a specific time (16:25:00) on a specific date (2012-08-24). The relevant tables are transactions_1k and customers. The transactions_1k table contains the transaction details including Date, Time, and CustomerID, while the customers table contains CustomerID and Currency. To answer the question, we need to join these two tables on CustomerID, filter transactions_1k by the given Date and Time, and then select the Currency from the customers table. The date format is corrected to '2012-08-24' as per the evidence. The possible SQL conditions confirm filtering on transactions_1k.Date = '2012-08-24' and transactions_1k.Time = '16:25:00'. The possible SQL query is syntactically correct and logically sound. Adding LIMIT 1 ensures only one currency is returned in case multiple transactions match the criteria. Therefore, the finalized SQL query correctly answers the question.",
+            "predicted_sql": "SELECT `customers`.`Currency` FROM `transactions_1k` INNER JOIN `customers` ON `transactions_1k`.`CustomerID` = `customers`.`CustomerID` WHERE `transactions_1k`.`Date` = '2012-08-24' AND `transactions_1k`.`Time` = '16:25:00' LIMIT 1",
+            "prompt_tokens": 2327,
+            "completion_tokens": 299,
+            "total_tokens": 2626
+        },
+        "predicted_sql": "SELECT `customers`.`Currency` FROM `transactions_1k` INNER JOIN `customers` ON `transactions_1k`.`CustomerID` = `customers`.`CustomerID` WHERE `transactions_1k`.`Date` = '2012-08-24' AND `transactions_1k`.`Time` = '16:25:00' LIMIT 1",
+        "total_usage": {
+            "prompt_tokens": 11453,
+            "completion_tokens": 861,
+            "total_tokens": 12314
+        },
+        "timing": {
+            "SF": 8.202937602996826,
+            "CSG": 6.450025796890259,
+            "QE": 5.476698160171509,
+            "SR": 6.06669282913208,
+            "total_time": 26.196354389190674
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 1346,
+        "db_id": "student_club",
+        "question": "Tell the phone number of \"Carlo Jacobs\".",
+        "evidence": "Carlo Jacobs is the full name; full name refers to first_name, last_name;",
+        "SQL": "SELECT\n  `phone`\nFROM `member`\nWHERE\n  `first_name` = 'Carlo' AND `last_name` = 'Jacobs'",
+        "difficulty": "simple",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the phone number of a member named 'Carlo Jacobs'. The full name is composed of first_name and last_name, which are columns in the member table. The phone number is also stored in the member table under the phone column. Therefore, only the member table is relevant, and the necessary columns are first_name, last_name, and phone to identify the member and retrieve the phone number.",
+            "filtered_schema_dict": {
+                "member": [
+                    "first_name",
+                    "last_name",
+                    "phone"
+                ]
+            },
+            "prompt_tokens": 7026,
+            "completion_tokens": 113,
+            "total_tokens": 7139
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "member": [
+                    "first_name",
+                    "last_name",
+                    "phone"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE member (\nmember_id TEXT primary key, \nfirst_name TEXT,\nlast_name TEXT,\nphone TEXT,\n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the phone number of the member named 'Carlo Jacobs'. The member table contains the columns first_name, last_name, and phone. Since the full name is given, we need to filter the member table where first_name is 'Carlo' and last_name is 'Jacobs'. Then, we select the phone column for that member.",
+            "possible_sql": "SELECT `phone` FROM `member` WHERE `first_name` = 'Carlo' AND `last_name` = 'Jacobs'",
+            "exec_err": "",
+            "prompt_tokens": 3393,
+            "completion_tokens": 115,
+            "total_tokens": 3508
+        },
+        "possible_sql": "SELECT `phone` FROM `member` WHERE `first_name` = 'Carlo' AND `last_name` = 'Jacobs'",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the phone number of 'Carlo Jacobs'. The database schema includes a 'member' table with columns 'member_id', 'first_name', 'last_name', and 'phone'. The evidence clarifies that 'Carlo Jacobs' is a full name, which corresponds to the 'first_name' and 'last_name' columns in the 'member' table. To retrieve the phone number, the query should filter the 'member' table where 'first_name' equals 'Carlo' and 'last_name' equals 'Jacobs', then select the 'phone' column. There is no need to join with other tables since all required information is in the 'member' table. The possible SQL conditions also confirm the use of 'member.first_name = Carlo' and 'member.last_name = Jacobs'. Therefore, the refined question should explicitly mention the table and columns involved, the filtering conditions on 'first_name' and 'last_name', and the selection of the 'phone' column to make it clear and directly translatable into SQL.",
+            "enriched_question": "Please find the phone number (member.phone) of the member whose first name is 'Carlo' (member.first_name = 'Carlo') and last name is 'Jacobs' (member.last_name = 'Jacobs') from the member table.",
+            "prompt_tokens": 6487,
+            "completion_tokens": 280,
+            "total_tokens": 6767
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the phone number of the member named 'Carlo Jacobs'. The database schema shows that the 'member' table contains the columns 'first_name', 'last_name', and 'phone'. Since 'Carlo Jacobs' corresponds to first_name = 'Carlo' and last_name = 'Jacobs', the query should filter the 'member' table on these two columns and select the 'phone' column. There is no need for any joins or additional tables because all required information is in the 'member' table. The possible SQL conditions confirm the use of `member.first_name = 'Carlo'` and `member.last_name = 'Jacobs'`. The possible SQL query provided is syntactically correct and matches the requirements. Therefore, the finalized SQL query is a simple SELECT statement from the 'member' table with the appropriate WHERE clause filtering on first_name and last_name.",
+            "predicted_sql": "SELECT `phone` FROM `member` WHERE `first_name` = 'Carlo' AND `last_name` = 'Jacobs'",
+            "prompt_tokens": 2623,
+            "completion_tokens": 224,
+            "total_tokens": 2847
+        },
+        "predicted_sql": "SELECT `phone` FROM `member` WHERE `first_name` = 'Carlo' AND `last_name` = 'Jacobs'",
+        "total_usage": {
+            "prompt_tokens": 12503,
+            "completion_tokens": 619,
+            "total_tokens": 13122
+        },
+        "timing": {
+            "SF": 3.476407766342163,
+            "CSG": 2.5943126678466797,
+            "QE": 5.120685338973999,
+            "SR": 6.089623928070068,
+            "total_time": 17.28102970123291
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 1394,
+        "db_id": "student_club",
+        "question": "How many members of the Student_Club have major in 'Physics Teaching'?",
+        "evidence": "'Physics Teaching' is the major_name;",
+        "SQL": "SELECT\n  COUNT(`T2`.`member_id`)\nFROM `major` AS `T1`\nINNER JOIN `member` AS `T2`\n  ON `T1`.`major_id` = `T2`.`link_to_major`\nWHERE\n  `T1`.`major_name` = 'Physics Teaching'",
+        "difficulty": "simple",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the count of members who have a major in 'Physics Teaching'. The key entity is 'Physics Teaching', which corresponds to the major_name column in the major table. To link members to their majors, we need the member table's link_to_major column, which references major.major_id. Therefore, the relevant tables are member and major. From member, we need member_id (to count members) and link_to_major (to join with major). From major, we need major_id (to join) and major_name (to filter by 'Physics Teaching'). No other tables or columns are necessary for this query.",
+            "filtered_schema_dict": {
+                "member": [
+                    "member_id",
+                    "link_to_major"
+                ],
+                "major": [
+                    "major_id",
+                    "major_name"
+                ]
+            },
+            "prompt_tokens": 7021,
+            "completion_tokens": 173,
+            "total_tokens": 7194
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "member": [
+                    "member_id",
+                    "link_to_major"
+                ],
+                "major": [
+                    "major_id",
+                    "major_name"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE member (\nmember_id TEXT primary key, \nlink_to_major TEXT,\nforeing key (link_to_major) references major(major_id) \n)\nCREATE TABLE major (\nmajor_id TEXT primary key, \nmajor_name TEXT,\n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the count of members in the Student_Club who have a major in 'Physics Teaching'. The database schema shows two tables: member and major. The member table has a column 'link_to_major' which references the 'major_id' in the major table. The major table contains the 'major_name' column. To find the members with the major 'Physics Teaching', we need to join the member table with the major table on the major_id and filter by major_name = 'Physics Teaching'. Then, we count the number of such members. The question mentions 'Student_Club' but there is no explicit column or table indicating club membership in the schema or samples, so we assume all members in the member table belong to the Student_Club or that the question refers to all members. Therefore, the SQL query will join member and major on link_to_major = major_id, filter major_name = 'Physics Teaching', and count the member_id.",
+            "possible_sql": "SELECT COUNT(`member`.`member_id`) FROM `member` INNER JOIN `major` ON `member`.`link_to_major` = `major`.`major_id` WHERE `major`.`major_name` = 'Physics Teaching'",
+            "exec_err": "",
+            "prompt_tokens": 3378,
+            "completion_tokens": 252,
+            "total_tokens": 3630
+        },
+        "possible_sql": "SELECT COUNT(`member`.`member_id`) FROM `member` INNER JOIN `major` ON `member`.`link_to_major` = `major`.`major_id` WHERE `major`.`major_name` = 'Physics Teaching'",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the number of members of the Student_Club who have a major in 'Physics Teaching'. From the database schema, the member table contains member_id and link_to_major, where link_to_major references the major_id in the major table. The major table contains major_id and major_name, where major_name is the name of the major. The evidence confirms that 'Physics Teaching' is a value in the major_name column of the major table. To answer the question, we need to count the number of members whose link_to_major corresponds to a major_id in the major table where major_name = 'Physics Teaching'. This involves joining the member and major tables on member.link_to_major = major.major_id, applying the condition major.major_name = 'Physics Teaching', and counting the resulting members. The question is refined to explicitly mention the tables and columns involved, the join condition, and the filtering condition, making it clearer and easier to translate into SQL.",
+            "enriched_question": "Please find the number of members (COUNT(member.member_id)) in the member table whose major is 'Physics Teaching' (major.major_name = 'Physics Teaching'). Join the member and major tables on member.link_to_major = major.major_id. Apply the condition major.major_name = 'Physics Teaching' to filter members with that major, then count the number of such members.",
+            "prompt_tokens": 7486,
+            "completion_tokens": 284,
+            "total_tokens": 7770
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the number of members in the Student_Club who have a major in 'Physics Teaching'. The member table contains member_id and link_to_major, which references major_id in the major table. The major table contains major_id and major_name. To find the count of members with the major 'Physics Teaching', we need to join the member and major tables on member.link_to_major = major.major_id, filter the rows where major.major_name = 'Physics Teaching', and count the member_id values. The possible SQL query provided already correctly implements this logic. The condition uses the exact major_name 'Physics Teaching' as required. The SQL syntax is correct, and the join condition is appropriate. Therefore, the finalized SQL query is the same as the possible SQL query provided.",
+            "predicted_sql": "SELECT COUNT(`member`.`member_id`) FROM `member` INNER JOIN `major` ON `member`.`link_to_major` = `major`.`major_id` WHERE `major`.`major_name` = 'Physics Teaching'",
+            "prompt_tokens": 2518,
+            "completion_tokens": 219,
+            "total_tokens": 2737
+        },
+        "predicted_sql": "SELECT COUNT(`member`.`member_id`) FROM `member` INNER JOIN `major` ON `member`.`link_to_major` = `major`.`major_id` WHERE `major`.`major_name` = 'Physics Teaching'",
+        "total_usage": {
+            "prompt_tokens": 13382,
+            "completion_tokens": 755,
+            "total_tokens": 14137
+        },
+        "timing": {
+            "SF": 4.2618584632873535,
+            "CSG": 5.974528789520264,
+            "QE": 4.409663677215576,
+            "SR": 3.9680850505828857,
+            "total_time": 18.61413598060608
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 1152,
+        "db_id": "thrombosis_prediction",
+        "question": "What is the ratio of outpatient to inpatient followed up treatment among all the 'SLE' diagnosed patient?",
+        "evidence": "'SLE' diagnosed patient means Diagnosis = 'SLE'; inpatient refers to Admission = '+'; outpatient refers to Admission = '-'; calculation =  DIVIDE(COUNT(ID) where Diagnosis = 'SLE' and Admission = '+', COUNT(ID) where Diagnosis = 'SLE' and Admission = '-')",
+        "SQL": "SELECT\n  SUM(CASE WHEN `Admission` = '+' THEN 1 ELSE 0 END) / SUM(CASE WHEN `Admission` = '-' THEN 1 ELSE 0 END)\nFROM `Patient`\nWHERE\n  `Diagnosis` = 'SLE'",
+        "difficulty": "moderate",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the ratio of outpatient to inpatient followed up treatment among all patients diagnosed with 'SLE'. This requires identifying patients with Diagnosis = 'SLE' and categorizing them by their Admission status, where '+' indicates inpatient and '-' indicates outpatient. The Patient table contains both the Diagnosis and Admission columns, which are essential for filtering and counting the patients accordingly. No other tables or columns are needed since the question focuses solely on patient diagnosis and admission status.",
+            "filtered_schema_dict": {
+                "Patient": [
+                    "ID",
+                    "Diagnosis",
+                    "Admission"
+                ]
+            },
+            "prompt_tokens": 6524,
+            "completion_tokens": 127,
+            "total_tokens": 6651
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "Patient": [
+                    "ID",
+                    "Diagnosis",
+                    "Admission"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE Patient (\nID INTEGER primary key, \nAdmission TEXT,\nDiagnosis TEXT,\n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the ratio of outpatient to inpatient followed up treatment among all patients diagnosed with 'SLE'. According to the evidence, 'SLE' diagnosed patients are those with Diagnosis = 'SLE'. Inpatient corresponds to Admission = '+', and outpatient corresponds to Admission = '-'. We need to count the number of patients with Diagnosis = 'SLE' and Admission = '-' (outpatient), and the number of patients with Diagnosis = 'SLE' and Admission = '+' (inpatient), then calculate the ratio by dividing the outpatient count by the inpatient count. To avoid division by zero, we ensure both counts are computed separately and then perform the division with casting to REAL for decimal precision.",
+            "possible_sql": "SELECT CAST(SUM(CASE WHEN `Admission` = '-' THEN 1 ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN `Admission` = '+' THEN 1 ELSE 0 END), 0) AS outpatient_to_inpatient_ratio FROM `Patient` WHERE `Diagnosis` = 'SLE'",
+            "exec_err": "",
+            "prompt_tokens": 3500,
+            "completion_tokens": 222,
+            "total_tokens": 3722
+        },
+        "possible_sql": "SELECT CAST(SUM(CASE WHEN `Admission` = '-' THEN 1 ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN `Admission` = '+' THEN 1 ELSE 0 END), 0) AS outpatient_to_inpatient_ratio FROM `Patient` WHERE `Diagnosis` = 'SLE'",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the ratio of outpatient to inpatient followed-up treatment among all patients diagnosed with 'SLE'. From the database schema, the Patient table contains the relevant columns: Diagnosis and Admission. The Diagnosis column holds disease names, so filtering patients with Diagnosis = 'SLE' is straightforward. The Admission column indicates whether a patient was admitted to the hospital ('+') or followed at the outpatient clinic ('-'). Thus, inpatients correspond to Admission = '+', and outpatients correspond to Admission = '-'. To calculate the ratio, we need to count the number of patients with Diagnosis = 'SLE' and Admission = '-' (outpatients), and the number of patients with Diagnosis = 'SLE' and Admission = '+' (inpatients). The ratio is then the count of outpatients divided by the count of inpatients. This involves filtering the Patient table twice with these conditions and performing a division of the two counts. The question can be expanded to explicitly mention these columns, values, and the calculation steps to make it clearer and easier to translate into SQL.",
+            "enriched_question": "Please calculate the ratio of the number of patients diagnosed with 'SLE' (Patient.Diagnosis = 'SLE') who were followed at the outpatient clinic (Patient.Admission = '-') to the number of patients diagnosed with 'SLE' (Patient.Diagnosis = 'SLE') who were admitted to the hospital (Patient.Admission = '+'). This involves counting the patients with Diagnosis = 'SLE' and Admission = '-' and dividing that count by the number of patients with Diagnosis = 'SLE' and Admission = '+'.",
+            "prompt_tokens": 6813,
+            "completion_tokens": 340,
+            "total_tokens": 7153
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the ratio of outpatients to inpatients among patients diagnosed with 'SLE'. The Patient table contains the Diagnosis and Admission columns. Diagnosis = 'SLE' filters the relevant patients. Admission = '-' indicates outpatient, and Admission = '+' indicates inpatient. To get the ratio, we count the number of outpatients and divide by the number of inpatients. The possible SQL query uses conditional aggregation with SUM and CASE to count outpatients and inpatients, casting the numerator to REAL to ensure floating-point division, and uses NULLIF to avoid division by zero if there are no inpatients. The query correctly filters Diagnosis = 'SLE' and calculates the ratio as required. The SQL syntax and column/table names are consistent with the schema and instructions.",
+            "predicted_sql": "SELECT CAST(SUM(CASE WHEN `Admission` = '-' THEN 1 ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN `Admission` = '+' THEN 1 ELSE 0 END), 0) AS outpatient_to_inpatient_ratio FROM `Patient` WHERE `Diagnosis` = 'SLE'",
+            "prompt_tokens": 2796,
+            "completion_tokens": 234,
+            "total_tokens": 3030
+        },
+        "predicted_sql": "SELECT CAST(SUM(CASE WHEN `Admission` = '-' THEN 1 ELSE 0 END) AS REAL) / NULLIF(SUM(CASE WHEN `Admission` = '+' THEN 1 ELSE 0 END), 0) AS outpatient_to_inpatient_ratio FROM `Patient` WHERE `Diagnosis` = 'SLE'",
+        "total_usage": {
+            "prompt_tokens": 13109,
+            "completion_tokens": 796,
+            "total_tokens": 13905
+        },
+        "timing": {
+            "SF": 3.580014705657959,
+            "CSG": 4.6614296436309814,
+            "QE": 5.130608797073364,
+            "SR": 6.386677026748657,
+            "total_time": 19.758730173110962
+        },
+        "results": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer"
+        }
+    },
+    {
+        "question_id": 1205,
+        "db_id": "thrombosis_prediction",
+        "question": "Was the patient with the number 57266's uric acid within a normal range?",
+        "evidence": "uric acid within a normal range refers to UA > 8.0 and SEX = 'M'OR UA > 6.5 and SEX = 'F'",
+        "SQL": "SELECT\n  CASE\n    WHEN (\n      `T1`.`SEX` = 'F' AND `T2`.`UA` > 6.5\n    )\n    OR (\n      `T1`.`SEX` = 'M' AND `T2`.`UA` > 8.0\n    )\n    THEN TRUE\n    ELSE FALSE\n  END\nFROM `Patient` AS `T1`\nINNER JOIN `Laboratory` AS `T2`\n  ON `T1`.`ID` = `T2`.`ID`\nWHERE\n  `T1`.`ID` = 57266",
+        "difficulty": "moderate",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks whether the patient with ID 57266 has uric acid (UA) within the normal range. To answer this, we need to identify the patient's sex (SEX) because the normal range for UA depends on sex (UA > 8.0 for males and UA > 6.5 for females). The patient's ID is required to filter the data for the specific patient. The UA value is stored in the Laboratory table, which records laboratory test results by patient ID and date. Therefore, the relevant tables are Patient (to get SEX and verify patient ID) and Laboratory (to get UA values for the patient). The necessary columns are Patient.ID, Patient.SEX, Laboratory.ID, and Laboratory.UA. Other columns are not needed for this question.",
+            "filtered_schema_dict": {
+                "Patient": [
+                    "ID",
+                    "SEX"
+                ],
+                "Laboratory": [
+                    "ID",
+                    "UA"
+                ]
+            },
+            "prompt_tokens": 6399,
+            "completion_tokens": 198,
+            "total_tokens": 6597
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "Patient": [
+                    "ID",
+                    "SEX"
+                ],
+                "Laboratory": [
+                    "ID",
+                    "UA"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE Patient (\nID INTEGER primary key, \nSEX TEXT,\n)\nCREATE TABLE Laboratory (\nID INTEGER, \nDate DATE, \nUA REAL,\nprimary key (ID, Date),\nforeing key (ID) references Patient(ID) \n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks whether the patient with ID 57266 has uric acid (UA) within the normal range. The normal range depends on the patient's sex: for males (SEX = 'M'), UA should be greater than 8.0; for females (SEX = 'F'), UA should be greater than 6.5. To answer this, we need to find the patient's sex from the Patient table and their UA value from the Laboratory table. We join the two tables on the patient ID, filter for the patient with ID 57266, and then check if the UA value is within the normal range based on the sex. The query will select the UA value and the sex for this patient and check the condition accordingly. Since the question is about whether the UA is within the normal range, the query will return a boolean expression or a result indicating if the UA is within the normal range. To keep it simple, the query will return 1 if UA is within the normal range and 0 otherwise. We also ensure that UA is not null to avoid errors in comparison.",
+            "possible_sql": "SELECT CASE WHEN (`Laboratory`.`UA` IS NOT NULL) AND ((`Patient`.`SEX` = 'M' AND `Laboratory`.`UA` > 8.0) OR (`Patient`.`SEX` = 'F' AND `Laboratory`.`UA` > 6.5)) THEN 1 ELSE 0 END AS UA_within_normal_range FROM `Patient` INNER JOIN `Laboratory` ON `Patient`.`ID` = `Laboratory`.`ID` WHERE `Patient`.`ID` = 57266 ORDER BY `Laboratory`.`Date` DESC LIMIT 1",
+            "exec_err": "",
+            "prompt_tokens": 2957,
+            "completion_tokens": 352,
+            "total_tokens": 3309
+        },
+        "possible_sql": "SELECT CASE WHEN (`Laboratory`.`UA` IS NOT NULL) AND ((`Patient`.`SEX` = 'M' AND `Laboratory`.`UA` > 8.0) OR (`Patient`.`SEX` = 'F' AND `Laboratory`.`UA` > 6.5)) THEN 1 ELSE 0 END AS UA_within_normal_range FROM `Patient` INNER JOIN `Laboratory` ON `Patient`.`ID` = `Laboratory`.`ID` WHERE `Patient`.`ID` = 57266 ORDER BY `Laboratory`.`Date` DESC LIMIT 1",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks whether the uric acid (UA) level of the patient with ID 57266 is within the normal range. To answer this, we need to link the patient's UA values from the Laboratory table with the patient's sex from the Patient table, because the normal UA range depends on sex: for males, UA should be less than or equal to 8.0, and for females, UA should be less than or equal to 6.5. The Patient table contains the patient's ID and SEX columns, while the Laboratory table contains the UA values and patient ID. The question requires checking the UA values for the patient with ID 57266, so the condition Patient.ID = 57266 and Laboratory.ID = 57266 applies. The UA values should be compared against the normal ranges based on the patient's sex. To do this, the Patient and Laboratory tables should be joined on the ID column. After joining, the UA value should be compared to the normal range conditionally based on the SEX value. The question can be expanded to explicitly mention these tables, columns, and conditions, making it clearer and easier to translate into SQL queries that join Patient and Laboratory on ID, filter by Patient.ID = 57266, and check UA against the sex-specific normal ranges (UA <= 8.0 if SEX = 'M', UA <= 6.5 if SEX = 'F').",
+            "enriched_question": "Please determine whether the uric acid level (Laboratory.UA) of the patient with ID 57266 (Patient.ID = 57266) is within the normal range. The normal range depends on the patient's sex (Patient.SEX): for male patients (Patient.SEX = 'M'), the uric acid level is considered normal if Laboratory.UA is less than or equal to 8.0; for female patients (Patient.SEX = 'F'), the uric acid level is considered normal if Laboratory.UA is less than or equal to 6.5. Join the Patient and Laboratory tables on the ID column (Patient.ID = Laboratory.ID) to obtain the patient's sex and uric acid values, then apply the sex-specific normal range conditions to determine if the patient's uric acid level is within the normal range.",
+            "prompt_tokens": 6630,
+            "completion_tokens": 467,
+            "total_tokens": 7097
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks whether the uric acid (UA) level of the patient with ID 57266 is within the normal range. The normal range depends on the patient's sex: for males (SEX = 'M'), UA should be less than or equal to 8.0; for females (SEX = 'F'), UA should be less than or equal to 6.5. To answer this, we need to join the Patient and Laboratory tables on the ID column to get both the patient's sex and UA values. We then filter for the patient with ID 57266. Since the Laboratory table can have multiple UA records for the patient on different dates, we consider the most recent UA value by ordering by Laboratory.Date descending and limiting to 1 record. The CASE statement checks if the UA value is not null and compares it against the sex-specific normal range. If UA is within the normal range, the result is 1; otherwise, 0. This approach correctly handles the sex-specific condition and selects the latest UA measurement for the patient.",
+            "predicted_sql": "SELECT CASE WHEN (`Laboratory`.`UA` IS NOT NULL) AND ((`Patient`.`SEX` = 'M' AND `Laboratory`.`UA` <= 8.0) OR (`Patient`.`SEX` = 'F' AND `Laboratory`.`UA` <= 6.5)) THEN 1 ELSE 0 END AS UA_within_normal_range FROM `Patient` INNER JOIN `Laboratory` ON `Patient`.`ID` = `Laboratory`.`ID` WHERE `Patient`.`ID` = 57266 ORDER BY `Laboratory`.`Date` DESC LIMIT 1",
+            "prompt_tokens": 2697,
+            "completion_tokens": 343,
+            "total_tokens": 3040
+        },
+        "predicted_sql": "SELECT CASE WHEN (`Laboratory`.`UA` IS NOT NULL) AND ((`Patient`.`SEX` = 'M' AND `Laboratory`.`UA` <= 8.0) OR (`Patient`.`SEX` = 'F' AND `Laboratory`.`UA` <= 6.5)) THEN 1 ELSE 0 END AS UA_within_normal_range FROM `Patient` INNER JOIN `Laboratory` ON `Patient`.`ID` = `Laboratory`.`ID` WHERE `Patient`.`ID` = 57266 ORDER BY `Laboratory`.`Date` DESC LIMIT 1",
+        "total_usage": {
+            "prompt_tokens": 12284,
+            "completion_tokens": 1162,
+            "total_tokens": 13446
+        },
+        "timing": {
+            "SF": 5.895179510116577,
+            "CSG": 7.006795167922974,
+            "QE": 8.327967882156372,
+            "SR": 7.532760143280029,
+            "total_time": 28.762702703475952
+        },
+        "results": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer"
+        }
+    },
+    {
+        "question_id": 1256,
+        "db_id": "thrombosis_prediction",
+        "question": "How many patients with a abnormal C-reactive protein don't have their data recorded?",
+        "evidence": "abnormal C-reactive protein refers to CRP ='+'; don't have data recorded refers to Description IS NULL;",
+        "SQL": "SELECT COUNT(T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE (T2.CRP = '+' ) AND T1.Description IS NULL;",
+        "difficulty": "moderate",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the count of patients who have an abnormal C-reactive protein (CRP) and whose data is not recorded. The abnormal CRP is indicated by CRP = '+', which is a column in the Laboratory table. The data not recorded is indicated by Description IS NULL, which is a column in the Patient table. To answer this question, we need to link patients with their laboratory results. The Laboratory table contains CRP and patient ID, and the Patient table contains the Description and patient ID. Therefore, the relevant tables are Patient and Laboratory. The necessary columns are Patient.ID and Patient.Description to check if data is recorded, and Laboratory.ID (to join with Patient.ID) and Laboratory.CRP to check for abnormal CRP.",
+            "filtered_schema_dict": {
+                "Patient": [
+                    "ID",
+                    "Description"
+                ],
+                "Laboratory": [
+                    "ID",
+                    "CRP"
+                ]
+            },
+            "prompt_tokens": 6324,
+            "completion_tokens": 195,
+            "total_tokens": 6519
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "Patient": [
+                    "ID",
+                    "Description"
+                ],
+                "Laboratory": [
+                    "ID",
+                    "CRP"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE Patient (\nID INTEGER primary key, \nDescription DATE,\n)\nCREATE TABLE Laboratory (\nID INTEGER, \nDate DATE, \nCRP TEXT,\nprimary key (ID, Date),\nforeing key (ID) references Patient(ID) \n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the count of patients who have an abnormal C-reactive protein (CRP) and whose data is not recorded. According to the evidence, abnormal CRP is indicated by CRP = '+'. Patients who don't have their data recorded have Patient.Description IS NULL. We need to find patients with CRP = '+' in the Laboratory table and join with the Patient table to check if their Description is NULL. Then count the distinct patients meeting these criteria.",
+            "possible_sql": "SELECT COUNT(DISTINCT `Patient`.`ID`) FROM `Patient` INNER JOIN `Laboratory` ON `Patient`.`ID` = `Laboratory`.`ID` WHERE `Laboratory`.`CRP` = '+' AND `Patient`.`Description` IS NULL",
+            "exec_err": "",
+            "prompt_tokens": 3257,
+            "completion_tokens": 159,
+            "total_tokens": 3416
+        },
+        "possible_sql": "SELECT COUNT(DISTINCT `Patient`.`ID`) FROM `Patient` INNER JOIN `Laboratory` ON `Patient`.`ID` = `Laboratory`.`ID` WHERE `Laboratory`.`CRP` = '+' AND `Patient`.`Description` IS NULL",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the count of patients who have an abnormal C-reactive protein (CRP) value and whose data is not recorded. From the database schema, the Patient table contains patient IDs and a Description column, which represents the first date when patient data was recorded. If Description is NULL, it means the patient's data was not recorded. The Laboratory table contains laboratory test results, including the CRP column, which indicates C-reactive protein levels. According to the evidence, an abnormal CRP is represented by the value '+'. To answer the question, we need to identify patients with Laboratory.CRP = '+' and whose Patient.Description is NULL. Since Laboratory.ID references Patient.ID, we can join these tables on ID to link lab results to patients. The SQL query would join Patient and Laboratory on Patient.ID = Laboratory.ID, filter for Laboratory.CRP = '+', and Patient.Description IS NULL, then count the distinct patients meeting these criteria. Therefore, the refined question should explicitly mention the Patient and Laboratory tables, the CRP column with abnormal value '+', the Description column being NULL indicating no recorded data, and the need to count such patients. This makes the question clearer and directly maps to the database schema and columns, facilitating SQL query formulation.",
+            "enriched_question": "Please find the number of patients (count of Patient.ID) who have an abnormal C-reactive protein value (Laboratory.CRP = '+') and whose patient data is not recorded (Patient.Description IS NULL). Join the Patient and Laboratory tables on Patient.ID = Laboratory.ID to link laboratory results with patient records, then apply the conditions Laboratory.CRP = '+' and Patient.Description IS NULL, and count the distinct patients satisfying these conditions.",
+            "prompt_tokens": 6810,
+            "completion_tokens": 353,
+            "total_tokens": 7163
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the count of patients who have an abnormal C-reactive protein (CRP) value and whose data is not recorded. According to the database schema, the Patient table contains the Description column, which is NULL if the patient's data is not recorded. The Laboratory table contains the CRP column, where an abnormal CRP is represented by '+'. To find the patients meeting these criteria, we join the Patient and Laboratory tables on Patient.ID = Laboratory.ID. We then filter for Laboratory.CRP = '+' and Patient.Description IS NULL. Finally, we count the distinct Patient.ID values to get the number of unique patients satisfying these conditions. The provided possible SQL query is syntactically correct and logically matches the question requirements. Therefore, the finalized SQL query is the same as the possible SQL query.",
+            "predicted_sql": "SELECT COUNT(DISTINCT `Patient`.`ID`) FROM `Patient` INNER JOIN `Laboratory` ON `Patient`.`ID` = `Laboratory`.`ID` WHERE `Laboratory`.`CRP` = '+' AND `Patient`.`Description` IS NULL",
+            "prompt_tokens": 2584,
+            "completion_tokens": 231,
+            "total_tokens": 2815
+        },
+        "predicted_sql": "SELECT COUNT(DISTINCT `Patient`.`ID`) FROM `Patient` INNER JOIN `Laboratory` ON `Patient`.`ID` = `Laboratory`.`ID` WHERE `Laboratory`.`CRP` = '+' AND `Patient`.`Description` IS NULL",
+        "total_usage": {
+            "prompt_tokens": 12651,
+            "completion_tokens": 743,
+            "total_tokens": 13394
+        },
+        "timing": {
+            "SF": 4.618420600891113,
+            "CSG": 6.771355628967285,
+            "QE": 7.2316200733184814,
+            "SR": 7.264624357223511,
+            "total_time": 25.88602066040039
+        },
+        "results": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer"
+        }
+    },
+    {
+        "question_id": 1044,
+        "db_id": "european_football_2",
+        "question": "List the football players with a birthyear of 1970 and a birthmonth of October.",
+        "evidence": "players with a birthyear of 1970 and a birthmonth of October refers to substr(birthday,1,7) AS 'year-month',WHERE year = '1970' AND month = '10';",
+        "SQL": "SELECT\n  `player_name`\nFROM `Player`\nWHERE\n  SUBSTR(`birthday`, 1, 7) = '1970-10'",
+        "difficulty": "simple",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks to list football players born in the year 1970 and the month of October. The relevant information is the players' birthdate, which is stored in the 'birthday' column of the Player table. To identify players by birth year and month, we need the 'birthday' column. Additionally, to list the players, we need their names, which are stored in the 'player_name' column of the Player table. No other tables or columns are necessary because the question focuses solely on player birthdates and names.",
+            "filtered_schema_dict": {
+                "Player": [
+                    "player_name",
+                    "birthday"
+                ]
+            },
+            "prompt_tokens": 13951,
+            "completion_tokens": 140,
+            "total_tokens": 14091
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "Player": [
+                    "player_name",
+                    "birthday"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE Player (\nid INTEGER primary key, \nplayer_name TEXT,\nbirthday TEXT,\n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for football players born in the year 1970 and the month of October. The Player table contains a birthday column in the format 'YYYY-MM-DD HH:MM:SS'. To filter players by birthyear and birthmonth, we can extract the first 7 characters of the birthday string, which correspond to 'YYYY-MM'. We then check if this substring equals '1970-10'. This ensures we only select players born in October 1970.",
+            "possible_sql": "SELECT `player_name` FROM `Player` WHERE substr(`birthday`, 1, 7) = '1970-10'",
+            "exec_err": "",
+            "prompt_tokens": 3022,
+            "completion_tokens": 137,
+            "total_tokens": 3159
+        },
+        "possible_sql": "SELECT `player_name` FROM `Player` WHERE substr(`birthday`, 1, 7) = '1970-10'",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks to list football players born in the year 1970 and the month of October. The Player table contains the relevant information with columns 'player_name' and 'birthday'. The 'birthday' column stores the birth date and time as a string in the format 'YYYY-MM-DD HH:MM:SS'. To filter players by birth year and month, the substring of the 'birthday' column from position 1 to 7 (which corresponds to 'YYYY-MM') can be extracted. The evidence suggests using substring functions to isolate the year and month parts, specifically filtering where year = '1970' and month = '10'. Therefore, the SQL query would involve selecting 'player_name' from the Player table where the substring of 'birthday' matches '1970-10'. This refined question explicitly mentions the table and columns involved, the filtering criteria on the 'birthday' column, and the expected output of player names, making it clearer and easier to translate into SQL.",
+            "enriched_question": "Please find the names of football players (Player.player_name) from the Player table whose birth year is 1970 and birth month is October. To do this, apply a condition on the Player.birthday column by extracting the year and month part (substring of Player.birthday from position 1 to 7) and filter where the year is '1970' and the month is '10'. Select the player_name of these players.",
+            "prompt_tokens": 5958,
+            "completion_tokens": 304,
+            "total_tokens": 6262
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks to list football players born in October 1970. The Player table contains the player_name and birthday columns. The birthday column stores date and time as a string in the format 'YYYY-MM-DD HH:MM:SS'. To filter players by birth year and month, we can extract the substring of the birthday from position 1 to 7, which corresponds to 'YYYY-MM'. We then filter where this substring equals '1970-10'. This approach directly matches the evidence and the possible SQL query provided. There is no need for joins or additional conditions. The query will select player_name from Player where substr(birthday, 1, 7) = '1970-10'. This is syntactically correct and logically satisfies the question requirements.",
+            "predicted_sql": "SELECT `player_name` FROM `Player` WHERE substr(`birthday`, 1, 7) = '1970-10'",
+            "prompt_tokens": 2026,
+            "completion_tokens": 197,
+            "total_tokens": 2223
+        },
+        "predicted_sql": "SELECT `player_name` FROM `Player` WHERE substr(`birthday`, 1, 7) = '1970-10'",
+        "total_usage": {
+            "prompt_tokens": 11006,
+            "completion_tokens": 638,
+            "total_tokens": 11644
+        },
+        "timing": {
+            "SF": 39.524498462677,
+            "CSG": 3.6479074954986572,
+            "QE": 7.1201372146606445,
+            "SR": 4.638199806213379,
+            "total_time": 54.93074297904968
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 1110,
+        "db_id": "european_football_2",
+        "question": "Tell the build Up play passing class for \"FC Lorient\" on 2010/2/22.",
+        "evidence": "\"FC Lorient\" refers to team_long_name = 'FC Lorient'; on 2010/2/22 refers to date LIKE '2010-02-22%';",
+        "SQL": "SELECT\n  `t2`.`buildUpPlayPassingClass`\nFROM `Team` AS `t1`\nINNER JOIN `Team_Attributes` AS `t2`\n  ON `t1`.`team_api_id` = `t2`.`team_api_id`\nWHERE\n  `t1`.`team_long_name` = 'FC Lorient' AND `t2`.`date` LIKE '2010-02-22%'",
+        "difficulty": "moderate",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the 'build Up play passing class' of the team 'FC Lorient' on the date '2010/2/22'. From the database schema and column descriptions, the 'buildUpPlayPassingClass' column is in the Team_Attributes table and represents the passing class. To identify the team, the 'team_long_name' column in the Team table is relevant. The date is stored in the Team_Attributes table as 'date'. Therefore, to answer the question, we need to link the team name from the Team table to the Team_Attributes table via the team identifiers (team_api_id or team_fifa_api_id) and filter by the date. Hence, the necessary tables are Team and Team_Attributes. The necessary columns are 'team_long_name' from Team to identify the team, 'team_api_id' or 'team_fifa_api_id' to join with Team_Attributes, 'date' and 'buildUpPlayPassingClass' from Team_Attributes to filter by date and get the passing class.",
+            "filtered_schema_dict": {
+                "Team": [
+                    "team_long_name",
+                    "team_api_id",
+                    "team_fifa_api_id"
+                ],
+                "Team_Attributes": [
+                    "team_api_id",
+                    "team_fifa_api_id",
+                    "date",
+                    "buildUpPlayPassingClass"
+                ]
+            },
+            "prompt_tokens": 14419,
+            "completion_tokens": 283,
+            "total_tokens": 14702
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "Team": [
+                    "team_long_name",
+                    "team_api_id",
+                    "team_fifa_api_id"
+                ],
+                "Team_Attributes": [
+                    "team_api_id",
+                    "team_fifa_api_id",
+                    "date",
+                    "buildUpPlayPassingClass"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE Team (\nid INTEGER primary key, \nteam_api_id INTEGER,\nteam_fifa_api_id INTEGER,\nteam_long_name TEXT,\n)\nCREATE TABLE Team_Attributes (\nid INTEGER primary key, \nteam_fifa_api_id INTEGER,\nteam_api_id INTEGER,\ndate TEXT,\nbuildUpPlayPassingClass TEXT,\nforeing key (team_api_id) references Team(team_api_id) \nforeing key (team_fifa_api_id) references Team(team_fifa_api_id) \n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the buildUpPlayPassingClass of the team 'FC Lorient' on the date 2010/2/22. From the schema, the team_long_name is in the Team table, and the buildUpPlayPassingClass and date are in the Team_Attributes table. The Team and Team_Attributes tables can be joined on team_api_id or team_fifa_api_id. We will join on team_api_id since it is present in both tables. We filter the Team table for team_long_name = 'FC Lorient' and the Team_Attributes table for date LIKE '2010-02-22%'. Then we select the buildUpPlayPassingClass from Team_Attributes. Since the date is specific, we expect one record, so no aggregation is needed.",
+            "possible_sql": "SELECT `Team_Attributes`.`buildUpPlayPassingClass` FROM `Team` INNER JOIN `Team_Attributes` ON `Team`.`team_api_id` = `Team_Attributes`.`team_api_id` WHERE `Team`.`team_long_name` = 'FC Lorient' AND `Team_Attributes`.`date` LIKE '2010-02-22%' LIMIT 1",
+            "exec_err": "",
+            "prompt_tokens": 3699,
+            "completion_tokens": 250,
+            "total_tokens": 3949
+        },
+        "possible_sql": "SELECT `Team_Attributes`.`buildUpPlayPassingClass` FROM `Team` INNER JOIN `Team_Attributes` ON `Team`.`team_api_id` = `Team_Attributes`.`team_api_id` WHERE `Team`.`team_long_name` = 'FC Lorient' AND `Team_Attributes`.`date` LIKE '2010-02-22%' LIMIT 1",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the 'build Up play passing class' of the team 'FC Lorient' on the date '2010/2/22'. From the database schema, the relevant information is stored in the Team_Attributes table, specifically in the 'buildUpPlayPassingClass' column, which describes the passing class of the team. The Team_Attributes table contains 'team_api_id', 'team_fifa_api_id', and 'date' columns that can be used to filter the data. The team name 'FC Lorient' is stored in the Team table under the 'team_long_name' column. To link the team name with its attributes, a join between Team and Team_Attributes tables is necessary using either 'team_api_id' or 'team_fifa_api_id'. The date filter corresponds to the 'date' column in Team_Attributes, and the evidence specifies that the date should be matched with a LIKE pattern '2010-02-22%' to capture the exact day. The SQL query would join Team and Team_Attributes on team_api_id, filter Team.team_long_name = 'FC Lorient' and Team_Attributes.date LIKE '2010-02-22%', and select the 'buildUpPlayPassingClass' column. This refined question explicitly mentions the tables, columns, join conditions, and filtering criteria, making it clear and directly translatable into SQL.",
+            "enriched_question": "Please find the buildUpPlayPassingClass (Team_Attributes.buildUpPlayPassingClass) of the team whose team_long_name is 'FC Lorient' (Team.team_long_name = 'FC Lorient') on the date '2010-02-22' (Team_Attributes.date LIKE '2010-02-22%'). Join the Team and Team_Attributes tables on Team.team_api_id = Team_Attributes.team_api_id to link the team name with its attributes. Apply the conditions on team_long_name and date to filter the correct record and select the buildUpPlayPassingClass.",
+            "prompt_tokens": 6589,
+            "completion_tokens": 419,
+            "total_tokens": 7008
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the buildUpPlayPassingClass of the team 'FC Lorient' on the date '2010/2/22'. The relevant data is in the Team_Attributes table, which contains the buildUpPlayPassingClass and the date columns. To identify the correct team, we need to join the Team table on team_api_id with Team_Attributes. The team_long_name column in Team should be filtered to 'FC Lorient'. The date column in Team_Attributes should be filtered with a LIKE condition '2010-02-22%' to match the given date. The join and filters ensure we get the correct record. The query selects the buildUpPlayPassingClass column and limits the result to 1 record to avoid multiple rows if any. The SQL syntax is correct, all columns and tables exist, and the conditions match the question and evidence exactly.",
+            "predicted_sql": "SELECT `Team_Attributes`.`buildUpPlayPassingClass` FROM `Team` INNER JOIN `Team_Attributes` ON `Team`.`team_api_id` = `Team_Attributes`.`team_api_id` WHERE `Team`.`team_long_name` = 'FC Lorient' AND `Team_Attributes`.`date` LIKE '2010-02-22%' LIMIT 1",
+            "prompt_tokens": 3035,
+            "completion_tokens": 267,
+            "total_tokens": 3302
+        },
+        "predicted_sql": "SELECT `Team_Attributes`.`buildUpPlayPassingClass` FROM `Team` INNER JOIN `Team_Attributes` ON `Team`.`team_api_id` = `Team_Attributes`.`team_api_id` WHERE `Team`.`team_long_name` = 'FC Lorient' AND `Team_Attributes`.`date` LIKE '2010-02-22%' LIMIT 1",
+        "total_usage": {
+            "prompt_tokens": 13323,
+            "completion_tokens": 936,
+            "total_tokens": 14259
+        },
+        "timing": {
+            "SF": 50.6738703250885,
+            "CSG": 120.41793251037598,
+            "QE": 7.944193363189697,
+            "SR": 95.55978035926819,
+            "total_time": 274.59577655792236
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 847,
+        "db_id": "formula_1",
+        "question": "What is the surname of the driver with the best lap time in race number 19 in the second qualifying period?",
+        "evidence": "race number refers to raceId; second qualifying period refers to q2; best lap time refers to MIN(q2);",
+        "SQL": "SELECT\n  `T2`.`surname`\nFROM `qualifying` AS `T1`\nINNER JOIN `drivers` AS `T2`\n  ON `T2`.`driverId` = `T1`.`driverId`\nWHERE\n  `T1`.`raceId` = 19\nORDER BY\n  `T1`.`q2` ASC\nLIMIT 1",
+        "difficulty": "simple",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the surname of the driver who had the best lap time in the second qualifying period (q2) for race number 19. The key elements are: race number (raceId = 19), best lap time in q2 (minimum q2 time), and the driver's surname. The qualifying table contains raceId, driverId, and q2 columns, which are essential to find the driver with the minimum q2 time for race 19. The drivers table contains driverId and surname columns, which are necessary to get the surname of the identified driver. Therefore, only the qualifying and drivers tables are needed, with the columns raceId, driverId, and q2 from qualifying, and driverId and surname from drivers.",
+            "filtered_schema_dict": {
+                "qualifying": [
+                    "raceId",
+                    "driverId",
+                    "q2"
+                ],
+                "drivers": [
+                    "driverId",
+                    "surname"
+                ]
+            },
+            "prompt_tokens": 9492,
+            "completion_tokens": 200,
+            "total_tokens": 9692
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "qualifying": [
+                    "raceId",
+                    "driverId",
+                    "q2"
+                ],
+                "drivers": [
+                    "driverId",
+                    "surname"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE qualifying (\nqualifyId INTEGER primary key, \nraceId INTEGER,\ndriverId INTEGER,\nq2 TEXT,\nforeing key (driverId) references drivers(driverId) \nforeing key (raceId) references races(raceId) \n)\nCREATE TABLE drivers (\ndriverId INTEGER primary key, \nsurname TEXT,\n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the surname of the driver who had the best lap time in the second qualifying period (q2) for race number 19. The 'qualifying' table contains the q2 times and the raceId, and the 'drivers' table contains the driver surnames. We need to find the minimum q2 time for raceId 19, then find the driverId associated with that minimum q2 time, and finally get the surname of that driver from the 'drivers' table. Since q2 is stored as text in a time format, we can order by q2 ascending to get the best (minimum) time. We also need to ensure q2 is not NULL to avoid errors. We join 'qualifying' and 'drivers' on driverId, filter by raceId = 19 and q2 IS NOT NULL, order by q2 ascending, and limit to 1 to get the driver with the best q2 time. Then select the surname from the 'drivers' table for that driver.",
+            "possible_sql": "SELECT `drivers`.`surname` FROM `qualifying` INNER JOIN `drivers` ON `qualifying`.`driverId` = `drivers`.`driverId` WHERE `qualifying`.`raceId` = 19 AND `qualifying`.`q2` IS NOT NULL ORDER BY `qualifying`.`q2` ASC LIMIT 1",
+            "exec_err": "",
+            "prompt_tokens": 3619,
+            "completion_tokens": 288,
+            "total_tokens": 3907
+        },
+        "possible_sql": "SELECT `drivers`.`surname` FROM `qualifying` INNER JOIN `drivers` ON `qualifying`.`driverId` = `drivers`.`driverId` WHERE `qualifying`.`raceId` = 19 AND `qualifying`.`q2` IS NOT NULL ORDER BY `qualifying`.`q2` ASC LIMIT 1",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the surname of the driver who achieved the best lap time in the second qualifying period (q2) for race number 19. From the database schema, the qualifying table contains the q2 times, driverId, and raceId, while the drivers table contains the driverId and surname. The q2 column represents the time in the second qualifying period, and the best lap time corresponds to the minimum q2 value for the specified raceId. To answer this, we need to filter the qualifying table for raceId = 19, find the minimum q2 time, and then identify the driverId associated with that minimum q2 time. After that, we join with the drivers table on driverId to retrieve the surname of that driver. The question can be expanded to explicitly mention these database components and the steps to find the minimum q2 time for raceId 19 and then get the corresponding driver's surname from the drivers table.",
+            "enriched_question": "Please find the surname (drivers.surname) of the driver who achieved the best (minimum) lap time in the second qualifying period (qualifying.q2) for the race with raceId = 19 (qualifying.raceId = 19). To do this, first identify the minimum q2 time from the qualifying table filtered by raceId = 19, then find the driverId associated with this minimum q2 time, and finally join with the drivers table on driverId to get the surname of that driver.",
+            "prompt_tokens": 9932,
+            "completion_tokens": 313,
+            "total_tokens": 10245
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the surname of the driver with the best (minimum) lap time in the second qualifying period (q2) for race number 19. The qualifying table contains the q2 times, driverId, and raceId, while the drivers table contains driverId and surname. To answer this, we need to filter qualifying records for raceId = 19 and where q2 is not null (to avoid null values that could affect ordering). Then, we order the results by q2 ascending to get the best (minimum) q2 time at the top. We join the qualifying table with the drivers table on driverId to get the surname of the driver. Finally, we limit the result to 1 to get only the driver with the best q2 time. The provided possible SQL query correctly implements this logic, uses proper joins, conditions, and ordering, and includes the IS NOT NULL condition on q2 to ensure accurate results. Therefore, the finalized SQL query is the same as the possible SQL query provided.",
+            "predicted_sql": "SELECT `drivers`.`surname` FROM `qualifying` INNER JOIN `drivers` ON `qualifying`.`driverId` = `drivers`.`driverId` WHERE `qualifying`.`raceId` = 19 AND `qualifying`.`q2` IS NOT NULL ORDER BY `qualifying`.`q2` ASC LIMIT 1",
+            "prompt_tokens": 6172,
+            "completion_tokens": 287,
+            "total_tokens": 6459
+        },
+        "predicted_sql": "SELECT `drivers`.`surname` FROM `qualifying` INNER JOIN `drivers` ON `qualifying`.`driverId` = `drivers`.`driverId` WHERE `qualifying`.`raceId` = 19 AND `qualifying`.`q2` IS NOT NULL ORDER BY `qualifying`.`q2` ASC LIMIT 1",
+        "total_usage": {
+            "prompt_tokens": 19723,
+            "completion_tokens": 888,
+            "total_tokens": 20611
+        },
+        "timing": {
+            "SF": 9.345983028411865,
+            "CSG": 6.304916620254517,
+            "QE": 4.656980037689209,
+            "SR": 7.200143575668335,
+            "total_time": 27.508023262023926
+        },
+        "results": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer"
+        }
+    },
+    {
+        "question_id": 895,
+        "db_id": "formula_1",
+        "question": "What is the average lap time for Lewis Hamilton in the 2009 Malaysian Grand Prix?",
+        "evidence": "average lap time = AVG(milliseconds); 'Lewis Hamilton' refers to the full name of the driver; Full name of the driver refers to drivers.forename and drivers.surname; 'Malaysian Grand Prix' refers to races.name = 'Malaysian Grand Prix'",
+        "SQL": "SELECT\n  AVG(`T2`.`milliseconds`)\nFROM `races` AS `T1`\nINNER JOIN `lapTimes` AS `T2`\n  ON `T2`.`raceId` = `T1`.`raceId`\nINNER JOIN `drivers` AS `T3`\n  ON `T3`.`driverId` = `T2`.`driverId`\nWHERE\n  `T3`.`forename` = 'Lewis'\n  AND `T3`.`surname` = 'Hamilton'\n  AND `T1`.`year` = 2009\n  AND `T1`.`name` = 'Malaysian Grand Prix'",
+        "difficulty": "moderate",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the average lap time of Lewis Hamilton in the 2009 Malaysian Grand Prix. To answer this, we need to identify the driver (Lewis Hamilton) using the drivers table by matching forename and surname. We also need to identify the race (2009 Malaysian Grand Prix) using the races table by filtering on year and name. The lap times for each lap of the driver in that race are stored in the lapTimes table, where the lap time in milliseconds is recorded. Therefore, the relevant tables are drivers (to get driverId for Lewis Hamilton), races (to get raceId for the 2009 Malaysian Grand Prix), and lapTimes (to get lap times for that driver and race). The necessary columns are drivers.forename and drivers.surname to identify the driver, drivers.driverId to join with lapTimes, races.year and races.name to identify the race, races.raceId to join with lapTimes, and lapTimes.milliseconds to calculate the average lap time. Other columns are not needed for this query.",
+            "filtered_schema_dict": {
+                "drivers": [
+                    "driverId",
+                    "forename",
+                    "surname"
+                ],
+                "races": [
+                    "raceId",
+                    "year",
+                    "name"
+                ],
+                "lapTimes": [
+                    "raceId",
+                    "driverId",
+                    "milliseconds"
+                ]
+            },
+            "prompt_tokens": 9473,
+            "completion_tokens": 278,
+            "total_tokens": 9751
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "drivers": [
+                    "driverId",
+                    "forename",
+                    "surname"
+                ],
+                "races": [
+                    "raceId",
+                    "year",
+                    "name"
+                ],
+                "lapTimes": [
+                    "raceId",
+                    "driverId",
+                    "milliseconds"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE drivers (\ndriverId INTEGER primary key, \nforename TEXT,\nsurname TEXT,\n)\nCREATE TABLE races (\nraceId INTEGER primary key, \nyear INTEGER,\nname TEXT,\nforeing key (year) references seasons(year) \n)\nCREATE TABLE lapTimes (\nraceId INTEGER, \ndriverId INTEGER, \nlap INTEGER, \nmilliseconds INTEGER,\nprimary key (raceId, driverId, lap),\nforeing key (driverId) references drivers(driverId) \nforeing key (raceId) references races(raceId) \n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the average lap time in milliseconds for Lewis Hamilton in the 2009 Malaysian Grand Prix. To answer this, we need to join the drivers, races, and lapTimes tables. First, we identify Lewis Hamilton by matching drivers.forename = 'Lewis' and drivers.surname = 'Hamilton'. Next, we find the raceId for the 2009 Malaysian Grand Prix by filtering races.name = 'Malaysian Grand Prix' and races.year = 2009. Then, we join lapTimes on driverId and raceId to get all lap times for Lewis Hamilton in that race. Finally, we calculate the average of the milliseconds column from lapTimes for these filtered records. This will give the average lap time in milliseconds for Lewis Hamilton in the specified race.",
+            "possible_sql": "SELECT AVG(`lapTimes`.`milliseconds`) FROM `lapTimes` INNER JOIN `drivers` ON `lapTimes`.`driverId` = `drivers`.`driverId` INNER JOIN `races` ON `lapTimes`.`raceId` = `races`.`raceId` WHERE `drivers`.`forename` = 'Lewis' AND `drivers`.`surname` = 'Hamilton' AND `races`.`name` = 'Malaysian Grand Prix' AND `races`.`year` = 2009",
+            "exec_err": "",
+            "prompt_tokens": 3570,
+            "completion_tokens": 273,
+            "total_tokens": 3843
+        },
+        "possible_sql": "SELECT AVG(`lapTimes`.`milliseconds`) FROM `lapTimes` INNER JOIN `drivers` ON `lapTimes`.`driverId` = `drivers`.`driverId` INNER JOIN `races` ON `lapTimes`.`raceId` = `races`.`raceId` WHERE `drivers`.`forename` = 'Lewis' AND `drivers`.`surname` = 'Hamilton' AND `races`.`name` = 'Malaysian Grand Prix' AND `races`.`year` = 2009",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the average lap time of Lewis Hamilton in the 2009 Malaysian Grand Prix. To answer this, we need to identify the relevant tables and columns in the database schema. The driver's full name is split into 'forename' and 'surname' in the 'drivers' table, so we must filter drivers.forename = 'Lewis' and drivers.surname = 'Hamilton' to get the driverId. The race is identified by its name and year in the 'races' table, so we filter races.name = 'Malaysian Grand Prix' and races.year = 2009 to get the raceId. The lap times are stored in the 'lapTimes' table, which contains raceId, driverId, lap, and milliseconds (lap time in milliseconds). To find the average lap time, we join 'lapTimes' with 'drivers' and 'races' on driverId and raceId respectively, apply the filters for driver and race, and then calculate AVG(milliseconds) from lapTimes. This approach ensures the question explicitly references the tables and columns involved, the filtering conditions, and the aggregation function needed to compute the average lap time for the specified driver and race.",
+            "enriched_question": "Please find the average lap time in milliseconds (AVG(lapTimes.milliseconds)) for the driver Lewis Hamilton (drivers.forename = 'Lewis' AND drivers.surname = 'Hamilton') during the 2009 Malaysian Grand Prix (races.name = 'Malaysian Grand Prix' AND races.year = 2009). Join the lapTimes table with the drivers table on driverId, and with the races table on raceId. Apply the conditions to filter for the specified driver and race, then calculate the average of lapTimes.milliseconds to determine Lewis Hamilton's average lap time in that race.",
+            "prompt_tokens": 8125,
+            "completion_tokens": 380,
+            "total_tokens": 8505
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the average lap time of Lewis Hamilton in the 2009 Malaysian Grand Prix. To answer this, we need to join the lapTimes, drivers, and races tables. The drivers table provides the driver's forename and surname, so we filter for 'Lewis' and 'Hamilton'. The races table provides the race name and year, so we filter for 'Malaysian Grand Prix' and 2009. The lapTimes table contains the lap times in milliseconds for each lap of each driver in each race. We join these tables on driverId and raceId to get the relevant lap times for Lewis Hamilton in the specified race. Then, we calculate the average of the lapTimes.milliseconds column to get the average lap time. The provided possible SQL query correctly implements this logic, using INNER JOINs and the appropriate WHERE conditions. The SQL syntax is correct, and all table and column names are enclosed in backticks as required. Therefore, the final SQL query is the same as the possible SQL query provided.",
+            "predicted_sql": "SELECT AVG(`lapTimes`.`milliseconds`) FROM `lapTimes` INNER JOIN `drivers` ON `lapTimes`.`driverId` = `drivers`.`driverId` INNER JOIN `races` ON `lapTimes`.`raceId` = `races`.`raceId` WHERE `drivers`.`forename` = 'Lewis' AND `drivers`.`surname` = 'Hamilton' AND `races`.`name` = 'Malaysian Grand Prix' AND `races`.`year` = 2009",
+            "prompt_tokens": 4096,
+            "completion_tokens": 323,
+            "total_tokens": 4419
+        },
+        "predicted_sql": "SELECT AVG(`lapTimes`.`milliseconds`) FROM `lapTimes` INNER JOIN `drivers` ON `lapTimes`.`driverId` = `drivers`.`driverId` INNER JOIN `races` ON `lapTimes`.`raceId` = `races`.`raceId` WHERE `drivers`.`forename` = 'Lewis' AND `drivers`.`surname` = 'Hamilton' AND `races`.`name` = 'Malaysian Grand Prix' AND `races`.`year` = 2009",
+        "total_usage": {
+            "prompt_tokens": 15791,
+            "completion_tokens": 976,
+            "total_tokens": 16767
+        },
+        "timing": {
+            "SF": 15.015255451202393,
+            "CSG": 9.042264223098755,
+            "QE": 7.337060928344727,
+            "SR": 16.06384253501892,
+            "total_time": 47.458423137664795
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 948,
+        "db_id": "formula_1",
+        "question": "What are the maximum points of British constructors?",
+        "evidence": "maximum points = MAX(points); British is a nationality",
+        "SQL": "SELECT\n  MAX(`T1`.`points`)\nFROM `constructorStandings` AS `T1`\nINNER JOIN `constructors` AS `T2`\n  ON `T1`.`constructorId` = `T2`.`constructorId`\nWHERE\n  `T2`.`nationality` = 'British'",
+        "difficulty": "simple",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the maximum points of British constructors. The key elements are 'maximum points' and 'British constructors'. The nationality of constructors is stored in the 'constructors' table under the 'nationality' column. The points scored by constructors are stored in the 'constructorResults' table under the 'points' column. To find the maximum points of British constructors, we need to link constructors with their results. This requires the 'constructorId' column from both 'constructors' and 'constructorResults' tables to join them. Therefore, the relevant tables are 'constructors' and 'constructorResults'. From 'constructors', we need 'constructorId', 'nationality' to filter British constructors. From 'constructorResults', we need 'constructorId' and 'points' to find the maximum points scored by those constructors.",
+            "filtered_schema_dict": {
+                "constructors": [
+                    "constructorId",
+                    "nationality"
+                ],
+                "constructorResults": [
+                    "constructorId",
+                    "points"
+                ]
+            },
+            "prompt_tokens": 8983,
+            "completion_tokens": 215,
+            "total_tokens": 9198
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "constructors": [
+                    "constructorId",
+                    "nationality"
+                ],
+                "constructorResults": [
+                    "constructorId",
+                    "points"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE constructors (\nconstructorId INTEGER primary key, \nnationality TEXT,\n)\nCREATE TABLE constructorResults (\nconstructorResultsId INTEGER primary key, \nconstructorId INTEGER,\npoints REAL,\nforeing key (constructorId) references constructors(constructorId) \n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the maximum points of British constructors. The nationality of constructors is stored in the `constructors` table, and the points are stored in the `constructorResults` table. We need to join these two tables on the `constructorId` column to link constructors with their points. Then, we filter for constructors with nationality 'British' and find the maximum points among them. Since the question asks for the maximum points, we use ORDER BY points DESC and LIMIT 1 to get the highest points value. We also ensure to exclude NULL points to avoid errors.",
+            "possible_sql": "SELECT `constructorResults`.`points` FROM `constructorResults` INNER JOIN `constructors` ON `constructorResults`.`constructorId` = `constructors`.`constructorId` WHERE `constructors`.`nationality` = 'British' AND `constructorResults`.`points` IS NOT NULL ORDER BY `constructorResults`.`points` DESC LIMIT 1",
+            "exec_err": "",
+            "prompt_tokens": 2855,
+            "completion_tokens": 198,
+            "total_tokens": 3053
+        },
+        "possible_sql": "SELECT `constructorResults`.`points` FROM `constructorResults` INNER JOIN `constructors` ON `constructorResults`.`constructorId` = `constructors`.`constructorId` WHERE `constructors`.`nationality` = 'British' AND `constructorResults`.`points` IS NOT NULL ORDER BY `constructorResults`.`points` DESC LIMIT 1",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the maximum points of British constructors. From the database schema, the relevant tables are 'constructors' and 'constructorResults'. The 'constructors' table contains the 'constructorId' and 'nationality' columns, where 'nationality' can be used to filter constructors by 'British'. The 'constructorResults' table contains 'constructorId' and 'points', where 'points' represent the points scored by each constructor. To find the maximum points of British constructors, we need to join these two tables on 'constructorId' to link each constructor's nationality with their points. Then, we apply the condition that the nationality is 'British' (constructors.nationality = 'British'). Finally, we select the maximum value of points from the filtered results using the MAX aggregate function. This process ensures that we accurately identify the highest points scored by any British constructor. The enriched question should clearly specify these tables, columns, and conditions to make it easier to translate into SQL and to understand the intent.",
+            "enriched_question": "Please find the maximum points (MAX(constructorResults.points)) scored by constructors whose nationality is British (constructors.nationality = 'British'). Join the constructors and constructorResults tables on constructors.constructorId = constructorResults.constructorId. Apply the condition that constructors.nationality equals 'British' to filter the constructors. Then select the maximum points from the filtered constructor results.",
+            "prompt_tokens": 5621,
+            "completion_tokens": 298,
+            "total_tokens": 5919
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the maximum points scored by British constructors. The relevant tables are 'constructors' and 'constructorResults'. The 'constructors' table contains the nationality information, and the 'constructorResults' table contains the points scored by each constructor. To answer the question, we need to join these two tables on 'constructorId' to link each constructor's nationality with their points. We then filter the results to include only constructors with nationality 'British'. Since we want the maximum points, we order the results by points in descending order and limit the output to 1. We also include a condition to exclude null points to avoid errors or incorrect results. The provided possible SQL query is almost correct and follows the correct logic and syntax. It uses the correct join, filtering, ordering, and limiting to get the maximum points. Therefore, the finalized SQL query is the same as the possible SQL query, ensuring all table and column names are enclosed in backticks and the condition uses the exact string 'British'.",
+            "predicted_sql": "SELECT `constructorResults`.`points` FROM `constructorResults` INNER JOIN `constructors` ON `constructorResults`.`constructorId` = `constructors`.`constructorId` WHERE `constructors`.`nationality` = 'British' AND `constructorResults`.`points` IS NOT NULL ORDER BY `constructorResults`.`points` DESC LIMIT 1",
+            "prompt_tokens": 2267,
+            "completion_tokens": 290,
+            "total_tokens": 2557
+        },
+        "predicted_sql": "SELECT `constructorResults`.`points` FROM `constructorResults` INNER JOIN `constructors` ON `constructorResults`.`constructorId` = `constructors`.`constructorId` WHERE `constructors`.`nationality` = 'British' AND `constructorResults`.`points` IS NOT NULL ORDER BY `constructorResults`.`points` DESC LIMIT 1",
+        "total_usage": {
+            "prompt_tokens": 10743,
+            "completion_tokens": 786,
+            "total_tokens": 11529
+        },
+        "timing": {
+            "SF": 7.28215765953064,
+            "CSG": 6.088132858276367,
+            "QE": 2.608417510986328,
+            "SR": 4.478811979293823,
+            "total_time": 20.457520008087158
+        },
+        "results": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer"
+        }
+    },
+    {
+        "question_id": 994,
+        "db_id": "formula_1",
+        "question": "Which constructor scored most points from Monaco Grand Prix between 1980 and 2010? List the score, name and nationality of this team.",
+        "evidence": "Monaco Grand Priz refers to the race; race in year between 1980 and 2010",
+        "SQL": "SELECT\n  SUM(`T1`.`points`),\n  `T2`.`name`,\n  `T2`.`nationality`\nFROM `constructorResults` AS `T1`\nINNER JOIN `constructors` AS `T2`\n  ON `T1`.`constructorId` = `T2`.`constructorId`\nINNER JOIN `races` AS `T3`\n  ON `T3`.`raceid` = `T1`.`raceid`\nWHERE\n  `T3`.`name` = 'Monaco Grand Prix' AND `T3`.`year` BETWEEN 1980 AND 2010\nGROUP BY\n  `T2`.`name`\nORDER BY\n  SUM(`T1`.`points`) DESC\nLIMIT 1",
+        "difficulty": "challenging",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the constructor that scored the most points in the Monaco Grand Prix between 1980 and 2010, along with the score, name, and nationality of the constructor. To answer this, we need to identify the raceId for the Monaco Grand Prix races within the specified years (1980 to 2010) from the races table, using the 'name' and 'year' columns. Then, we need to find the points scored by constructors in those races, which is available in the constructorResults table via 'raceId', 'constructorId', and 'points'. Finally, to get the constructor's name and nationality, we use the constructors table with 'constructorId', 'name', and 'nationality'. Therefore, the relevant tables are races, constructorResults, and constructors. The necessary columns are: from races - raceId, name, year; from constructorResults - raceId, constructorId, points; from constructors - constructorId, name, nationality.",
+            "filtered_schema_dict": {
+                "races": [
+                    "raceId",
+                    "name",
+                    "year"
+                ],
+                "constructorResults": [
+                    "raceId",
+                    "constructorId",
+                    "points"
+                ],
+                "constructors": [
+                    "constructorId",
+                    "name",
+                    "nationality"
+                ]
+            },
+            "prompt_tokens": 8923,
+            "completion_tokens": 268,
+            "total_tokens": 9191
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "races": [
+                    "raceId",
+                    "name",
+                    "year"
+                ],
+                "constructorResults": [
+                    "raceId",
+                    "constructorId",
+                    "points"
+                ],
+                "constructors": [
+                    "constructorId",
+                    "name",
+                    "nationality"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE races (\nraceId INTEGER primary key, \nyear INTEGER,\nname TEXT,\nforeing key (year) references seasons(year) \n)\nCREATE TABLE constructorResults (\nconstructorResultsId INTEGER primary key, \nraceId INTEGER,\nconstructorId INTEGER,\npoints REAL,\nforeing key (constructorId) references constructors(constructorId) \nforeing key (raceId) references races(raceId) \n)\nCREATE TABLE constructors (\nconstructorId INTEGER primary key, \nname TEXT,\nnationality TEXT,\n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the constructor that scored the most points in the Monaco Grand Prix between the years 1980 and 2010 inclusive. To answer this, we need to join the races, constructorResults, and constructors tables. First, filter the races table for the race named 'Monaco Grand Prix' and year between 1980 and 2010. Then join with constructorResults on raceId to get the points scored by each constructor in those races. Next, join with constructors to get the name and nationality of each constructor. Finally, order the results by points in descending order and limit to 1 to get the constructor with the highest points. We also ensure points is not null to avoid errors in ordering.",
+            "possible_sql": "SELECT T3.`points`, T2.`name`, T2.`nationality` FROM `constructorResults` AS T3 INNER JOIN `races` AS T1 ON T3.`raceId` = T1.`raceId` INNER JOIN `constructors` AS T2 ON T3.`constructorId` = T2.`constructorId` WHERE T1.`name` = 'Monaco Grand Prix' AND T1.`year` BETWEEN 1980 AND 2010 AND T3.`points` IS NOT NULL ORDER BY T3.`points` DESC LIMIT 1",
+            "exec_err": "",
+            "prompt_tokens": 3150,
+            "completion_tokens": 278,
+            "total_tokens": 3428
+        },
+        "possible_sql": "SELECT T3.`points`, T2.`name`, T2.`nationality` FROM `constructorResults` AS T3 INNER JOIN `races` AS T1 ON T3.`raceId` = T1.`raceId` INNER JOIN `constructors` AS T2 ON T3.`constructorId` = T2.`constructorId` WHERE T1.`name` = 'Monaco Grand Prix' AND T1.`year` BETWEEN 1980 AND 2010 AND T3.`points` IS NOT NULL ORDER BY T3.`points` DESC LIMIT 1",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the constructor that scored the most points in the Monaco Grand Prix between the years 1980 and 2010, and requests the score, name, and nationality of that constructor. To answer this, we need to link the race information with the constructor results and constructor details. The 'races' table contains the race name and year, so we can filter races where races.name = 'Monaco Grand Prix' and races.year BETWEEN 1980 AND 2010. The 'constructorResults' table contains points scored by constructors in each race, linked by raceId and constructorId. The 'constructors' table contains the constructor's name and nationality, linked by constructorId. The process involves joining 'races' and 'constructorResults' on raceId, then joining with 'constructors' on constructorId. We filter races by name and year range, then aggregate points per constructor across these filtered races. Finally, we select the constructor with the maximum total points, returning the total points, constructor name, and nationality. This detailed linkage and filtering ensure the question is clear, precise, and directly maps to the database schema and columns, facilitating straightforward SQL query formulation.",
+            "enriched_question": "Please find the constructor who scored the highest total points in the Monaco Grand Prix (races.name = 'Monaco Grand Prix') held between the years 1980 and 2010 inclusive (races.year BETWEEN 1980 AND 2010). Join the races and constructorResults tables on raceId, then join constructorResults with constructors on constructorId. Aggregate the points (constructorResults.points) scored by each constructor across these filtered races, and identify the constructor with the maximum total points. Return the total points scored by this constructor, along with the constructor's name (constructors.name) and nationality (constructors.nationality).",
+            "prompt_tokens": 7241,
+            "completion_tokens": 386,
+            "total_tokens": 7627
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the constructor that scored the most points in the Monaco Grand Prix between 1980 and 2010. The relevant tables are 'races' (which contains race names and years), 'constructorResults' (which contains points scored by constructors in each race), and 'constructors' (which contains constructor details like name and nationality). We need to filter races where the name is 'Monaco Grand Prix' and the year is between 1980 and 2010. Then, join these filtered races with constructorResults on raceId to get points scored by each constructor in those races. Next, join with constructors on constructorId to get the constructor's name and nationality. We must aggregate the points per constructor across all these races to find the total points scored by each constructor in the specified period and race. Finally, we select the constructor with the maximum total points, returning the total points, constructor name, and nationality. The possible SQL query provided orders by points per race, which is incorrect because it does not aggregate points across all relevant races. Therefore, the final query must include a GROUP BY on constructorId, sum the points, and then order by the total points descending, limiting to 1 to get the top constructor. Also, we ensure points are not null to avoid errors in aggregation.",
+            "predicted_sql": "SELECT SUM(`constructorResults`.`points`) AS `total_points`, `constructors`.`name`, `constructors`.`nationality` FROM `constructorResults` INNER JOIN `races` ON `constructorResults`.`raceId` = `races`.`raceId` INNER JOIN `constructors` ON `constructorResults`.`constructorId` = `constructors`.`constructorId` WHERE `races`.`name` = 'Monaco Grand Prix' AND `races`.`year` BETWEEN 1980 AND 2010 AND `constructorResults`.`points` IS NOT NULL GROUP BY `constructorResults`.`constructorId` ORDER BY `total_points` DESC LIMIT 1",
+            "prompt_tokens": 2885,
+            "completion_tokens": 413,
+            "total_tokens": 3298
+        },
+        "predicted_sql": "SELECT SUM(`constructorResults`.`points`) AS `total_points`, `constructors`.`name`, `constructors`.`nationality` FROM `constructorResults` INNER JOIN `races` ON `constructorResults`.`raceId` = `races`.`raceId` INNER JOIN `constructors` ON `constructorResults`.`constructorId` = `constructors`.`constructorId` WHERE `races`.`name` = 'Monaco Grand Prix' AND `races`.`year` BETWEEN 1980 AND 2010 AND `constructorResults`.`points` IS NOT NULL GROUP BY `constructorResults`.`constructorId` ORDER BY `total_points` DESC LIMIT 1",
+        "total_usage": {
+            "prompt_tokens": 13276,
+            "completion_tokens": 1077,
+            "total_tokens": 14353
+        },
+        "timing": {
+            "SF": 7.781261682510376,
+            "CSG": 6.673538684844971,
+            "QE": 3.6194231510162354,
+            "SR": 9.454339742660522,
+            "total_time": 27.528563261032104
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 744,
+        "db_id": "superhero",
+        "question": "Between DC and Marvel Comics, which publisher has published more superheroes? Find the difference in the number of superheroes they have published.",
+        "evidence": "DC refers to publisher_name = 'DC Comics'; Marvel Comics refers to publisher_name = 'Marvel Comics'; calculation = SUBTRACT(SUM(publisher_name = 'Marvel Comics'), SUM(publisher_name = 'DC Comics'))",
+        "SQL": "SELECT\n  SUM(CASE WHEN `T2`.`publisher_name` = 'Marvel Comics' THEN 1 ELSE 0 END) - SUM(CASE WHEN `T2`.`publisher_name` = 'DC Comics' THEN 1 ELSE 0 END)\nFROM `superhero` AS `T1`\nINNER JOIN `publisher` AS `T2`\n  ON `T1`.`publisher_id` = `T2`.`id`",
+        "difficulty": "challenging",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks to compare the number of superheroes published by two specific publishers: 'DC Comics' and 'Marvel Comics'. To answer this, we need to identify the publishers by their names and count the superheroes associated with each publisher. The publisher table contains the publisher_name and id, which allows us to identify the relevant publishers. The superhero table contains the publisher_id, linking each superhero to a publisher. Therefore, the relevant tables are 'publisher' and 'superhero'. From 'publisher', we need 'id' and 'publisher_name' to filter for 'DC Comics' and 'Marvel Comics'. From 'superhero', we need 'publisher_id' to count superheroes per publisher. No other tables or columns are necessary for this question.",
+            "filtered_schema_dict": {
+                "publisher": [
+                    "id",
+                    "publisher_name"
+                ],
+                "superhero": [
+                    "publisher_id"
+                ]
+            },
+            "prompt_tokens": 4439,
+            "completion_tokens": 190,
+            "total_tokens": 4629
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "publisher": [
+                    "id",
+                    "publisher_name"
+                ],
+                "superhero": [
+                    "publisher_id"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE publisher (\nid INTEGER primary key, \npublisher_name TEXT,\n)\nCREATE TABLE superhero (\nid INTEGER primary key, \npublisher_id INTEGER,\nforeing key (publisher_id) references publisher(id) \n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks to find the difference in the number of superheroes published by 'Marvel Comics' and 'DC Comics'. To do this, we need to count the number of superheroes linked to each publisher. The 'superhero' table contains the 'publisher_id' which references the 'publisher' table's 'id'. The 'publisher' table contains the 'publisher_name'. We will join these two tables on publisher_id and filter for the two publishers of interest. Then, we count the number of superheroes for each publisher separately and subtract the count of DC Comics superheroes from the count of Marvel Comics superheroes. This difference will give the required result.",
+            "possible_sql": "SELECT (SELECT COUNT(*) FROM `superhero` AS sh INNER JOIN `publisher` AS p ON sh.`publisher_id` = p.`id` WHERE p.`publisher_name` = 'Marvel Comics') - (SELECT COUNT(*) FROM `superhero` AS sh INNER JOIN `publisher` AS p ON sh.`publisher_id` = p.`id` WHERE p.`publisher_name` = 'DC Comics') AS difference",
+            "exec_err": "",
+            "prompt_tokens": 3091,
+            "completion_tokens": 227,
+            "total_tokens": 3318
+        },
+        "possible_sql": "SELECT (SELECT COUNT(*) FROM `superhero` AS sh INNER JOIN `publisher` AS p ON sh.`publisher_id` = p.`id` WHERE p.`publisher_name` = 'Marvel Comics') - (SELECT COUNT(*) FROM `superhero` AS sh INNER JOIN `publisher` AS p ON sh.`publisher_id` = p.`id` WHERE p.`publisher_name` = 'DC Comics') AS difference",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks to compare the number of superheroes published by two specific publishers: 'DC Comics' and 'Marvel Comics', and to find the difference in the count of superheroes published by each. From the database schema, the 'publisher' table contains the 'publisher_name' and 'id' columns, where 'publisher_name' identifies the publisher such as 'DC Comics' or 'Marvel Comics'. The 'superhero' table contains 'id' and 'publisher_id', where 'publisher_id' references 'publisher.id' to link each superhero to their publisher. To answer the question, we need to count the number of superheroes associated with each publisher by joining 'superhero.publisher_id' with 'publisher.id' and filtering on 'publisher.publisher_name' for 'DC Comics' and 'Marvel Comics'. Then, we calculate the difference between these two counts. The evidence clarifies that 'DC' corresponds to 'DC Comics' and 'Marvel Comics' is explicitly named. The calculation involves subtracting the count of superheroes published by 'DC Comics' from the count published by 'Marvel Comics'. Therefore, the refined question should explicitly mention the tables and columns involved, the filtering conditions on 'publisher.publisher_name', the join between 'superhero' and 'publisher' tables on 'publisher_id' and 'id', and the calculation of the difference in counts of superheroes published by these two publishers.",
+            "enriched_question": "Please find the difference in the number of superheroes published by Marvel Comics and DC Comics. Join the superhero table and publisher table on superhero.publisher_id = publisher.id. Filter the superheroes published by Marvel Comics (publisher.publisher_name = 'Marvel Comics') and count them. Similarly, filter the superheroes published by DC Comics (publisher.publisher_name = 'DC Comics') and count them. Then calculate the difference by subtracting the count of DC Comics superheroes from the count of Marvel Comics superheroes.",
+            "prompt_tokens": 6543,
+            "completion_tokens": 391,
+            "total_tokens": 6934
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks to find the difference in the number of superheroes published by Marvel Comics and DC Comics. The database schema shows that the 'superhero' table has a 'publisher_id' column that references the 'publisher' table's 'id' column. The 'publisher' table contains the 'publisher_name' column which identifies the publisher names such as 'Marvel Comics' and 'DC Comics'. To answer the question, we need to count the number of superheroes for each publisher by joining 'superhero' and 'publisher' on 'publisher_id' = 'id', filtering by 'publisher_name' for each publisher, and then subtract the count of DC Comics superheroes from the count of Marvel Comics superheroes. The possible SQL query provided already correctly implements this logic using two subqueries and subtracting the counts. The conditions use the exact publisher names 'Marvel Comics' and 'DC Comics' as required. The SQL syntax is correct, joins are properly formulated, and the aggregation logic is accurate. Therefore, the final SQL query is the same as the possible SQL query provided, ensuring all table and column names are enclosed in backticks and the conditions are exact.",
+            "predicted_sql": "SELECT (SELECT COUNT(*) FROM `superhero` AS sh INNER JOIN `publisher` AS p ON sh.`publisher_id` = p.`id` WHERE p.`publisher_name` = 'Marvel Comics') - (SELECT COUNT(*) FROM `superhero` AS sh INNER JOIN `publisher` AS p ON sh.`publisher_id` = p.`id` WHERE p.`publisher_name` = 'DC Comics') AS difference",
+            "prompt_tokens": 3091,
+            "completion_tokens": 330,
+            "total_tokens": 3421
+        },
+        "predicted_sql": "SELECT (SELECT COUNT(*) FROM `superhero` AS sh INNER JOIN `publisher` AS p ON sh.`publisher_id` = p.`id` WHERE p.`publisher_name` = 'Marvel Comics') - (SELECT COUNT(*) FROM `superhero` AS sh INNER JOIN `publisher` AS p ON sh.`publisher_id` = p.`id` WHERE p.`publisher_name` = 'DC Comics') AS difference",
+        "total_usage": {
+            "prompt_tokens": 12725,
+            "completion_tokens": 948,
+            "total_tokens": 13673
+        },
+        "timing": {
+            "SF": 5.10811448097229,
+            "CSG": 4.069657802581787,
+            "QE": 4.780887842178345,
+            "SR": 6.232723712921143,
+            "total_time": 20.191383838653564
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 786,
+        "db_id": "superhero",
+        "question": "How many heroes have the highest attribute value in strength?",
+        "evidence": "highest attribute value in strength refers to MAX(attribute_value) WHERE attribute_name = 'Strength';",
+        "SQL": "SELECT\n  COUNT(`T1`.`hero_id`)\nFROM `hero_attribute` AS `T1`\nINNER JOIN `attribute` AS `T2`\n  ON `T1`.`attribute_id` = `T2`.`id`\nWHERE\n  `T2`.`attribute_name` = 'Strength'\n  AND `T1`.`attribute_value` = (\n    SELECT\n      MAX(`attribute_value`)\n    FROM `hero_attribute`\n  )",
+        "difficulty": "moderate",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the count of heroes who have the highest attribute value in the attribute 'Strength'. To answer this, we need to identify the attribute 'Strength' from the attribute table, then find the maximum attribute_value for that attribute in the hero_attribute table, and finally count how many heroes have that maximum attribute_value. Therefore, the relevant tables are 'attribute' to get the attribute id for 'Strength', and 'hero_attribute' to get the attribute values and hero ids. The necessary columns are 'id' and 'attribute_name' from attribute, and 'hero_id', 'attribute_id', and 'attribute_value' from hero_attribute. No other tables or columns are needed to answer this question.",
+            "filtered_schema_dict": {
+                "attribute": [
+                    "id",
+                    "attribute_name"
+                ],
+                "hero_attribute": [
+                    "hero_id",
+                    "attribute_id",
+                    "attribute_value"
+                ]
+            },
+            "prompt_tokens": 4712,
+            "completion_tokens": 192,
+            "total_tokens": 4904
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "attribute": [
+                    "id",
+                    "attribute_name"
+                ],
+                "hero_attribute": [
+                    "hero_id",
+                    "attribute_id",
+                    "attribute_value"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE attribute (\nid INTEGER primary key, \nattribute_name TEXT,\n)\nCREATE TABLE hero_attribute (\n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the number of heroes who have the highest attribute value in the 'Strength' attribute. First, we need to identify the attribute_id corresponding to the attribute_name 'Strength' from the attribute table. Then, we find the maximum attribute_value for that attribute_id in the hero_attribute table. Finally, we count how many heroes have that maximum attribute_value for the 'Strength' attribute. This requires a subquery to get the attribute_id for 'Strength', another subquery to get the maximum attribute_value for that attribute_id, and then counting the hero_ids with that maximum value.",
+            "possible_sql": "SELECT COUNT(*) FROM `hero_attribute` WHERE `attribute_id` = (SELECT `id` FROM `attribute` WHERE `attribute_name` = 'Strength') AND `attribute_value` = (SELECT MAX(`attribute_value`) FROM `hero_attribute` WHERE `attribute_id` = (SELECT `id` FROM `attribute` WHERE `attribute_name` = 'Strength'))",
+            "exec_err": "",
+            "prompt_tokens": 3249,
+            "completion_tokens": 208,
+            "total_tokens": 3457
+        },
+        "possible_sql": "SELECT COUNT(*) FROM `hero_attribute` WHERE `attribute_id` = (SELECT `id` FROM `attribute` WHERE `attribute_name` = 'Strength') AND `attribute_value` = (SELECT MAX(`attribute_value`) FROM `hero_attribute` WHERE `attribute_id` = (SELECT `id` FROM `attribute` WHERE `attribute_name` = 'Strength'))",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the number of heroes who have the highest attribute value in strength. To address this, we need to identify the relevant tables and columns in the database schema. The attribute table contains attribute names such as 'Strength' in the attribute_name column, and the hero_attribute table contains the attribute values for each hero, linked by attribute_id to the attribute table and hero_id to the superhero. The attribute_value column in hero_attribute represents the strength level for each hero when the attribute_id corresponds to 'Strength'. The evidence clarifies that the highest attribute value in strength is the maximum attribute_value where attribute_name = 'Strength'. Therefore, the process involves: 1) Finding the attribute_id in the attribute table where attribute_name = 'Strength'; 2) Using this attribute_id to filter hero_attribute entries; 3) Finding the maximum attribute_value for this attribute_id; 4) Counting how many heroes have this maximum attribute_value for strength. This requires joining the attribute and hero_attribute tables on attribute.id = hero_attribute.attribute_id, filtering for attribute_name = 'Strength', determining the max attribute_value, and counting heroes with that max value. The enriched question should explicitly mention these tables and columns, the condition on attribute_name, and the aggregation steps to find the maximum attribute_value and count heroes matching it, making it clear and directly translatable to SQL.",
+            "enriched_question": "Please find the number of heroes (COUNT(hero_attribute.hero_id)) who have the highest attribute value in strength. First, identify the attribute_id from the attribute table where attribute.attribute_name = 'Strength'. Then, in the hero_attribute table, filter entries with this attribute_id, find the maximum attribute_value (MAX(hero_attribute.attribute_value)) for strength, and count how many heroes have this maximum attribute_value. Join the attribute and hero_attribute tables on attribute.id = hero_attribute.attribute_id to apply these conditions and aggregations.",
+            "prompt_tokens": 6725,
+            "completion_tokens": 396,
+            "total_tokens": 7121
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the number of heroes who have the highest attribute value in strength. To answer this, we first identify the attribute_id corresponding to 'Strength' from the attribute table. Then, we find the maximum attribute_value for this attribute_id in the hero_attribute table. Finally, we count how many heroes have this maximum attribute_value for strength. The possible SQL query provided is logically correct and aligns with the database schema and question requirements. It uses subqueries to find the attribute_id for 'Strength' and the maximum attribute_value for that attribute_id, then counts the number of hero_attribute entries matching these criteria. The query correctly uses backticks for table and column names, and the conditions are accurate. No joins with other tables are necessary since all required data is in attribute and hero_attribute tables. Therefore, the provided SQL query is finalized as is.",
+            "predicted_sql": "SELECT COUNT(*) FROM `hero_attribute` WHERE `attribute_id` = (SELECT `id` FROM `attribute` WHERE `attribute_name` = 'Strength') AND `attribute_value` = (SELECT MAX(`attribute_value`) FROM `hero_attribute` WHERE `attribute_id` = (SELECT `id` FROM `attribute` WHERE `attribute_name` = 'Strength'))",
+            "prompt_tokens": 3028,
+            "completion_tokens": 264,
+            "total_tokens": 3292
+        },
+        "predicted_sql": "SELECT COUNT(*) FROM `hero_attribute` WHERE `attribute_id` = (SELECT `id` FROM `attribute` WHERE `attribute_name` = 'Strength') AND `attribute_value` = (SELECT MAX(`attribute_value`) FROM `hero_attribute` WHERE `attribute_id` = (SELECT `id` FROM `attribute` WHERE `attribute_name` = 'Strength'))",
+        "total_usage": {
+            "prompt_tokens": 13002,
+            "completion_tokens": 868,
+            "total_tokens": 13870
+        },
+        "timing": {
+            "SF": 3.563913345336914,
+            "CSG": 4.117444276809692,
+            "QE": 4.529093265533447,
+            "SR": 12.558851718902588,
+            "total_time": 24.76930260658264
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 539,
+        "db_id": "codebase_community",
+        "question": "Who is the owner of the post \"Eliciting priors from experts\"?",
+        "evidence": "\"Eliciting priors from experts\" is the Title of post; owner refers to DisplayName",
+        "SQL": "SELECT\n  `T2`.`DisplayName`\nFROM `posts` AS `T1`\nINNER JOIN `users` AS `T2`\n  ON `T1`.`OwnerUserId` = `T2`.`Id`\nWHERE\n  `T1`.`Title` = 'Eliciting priors from experts'",
+        "difficulty": "simple",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the owner of a post with a specific title 'Eliciting priors from experts'. The title of the post is stored in the 'posts' table under the 'Title' column. The owner of the post is described as the display name of the post owner, which corresponds to the 'OwnerDisplayName' column in the 'posts' table. Therefore, only the 'posts' table is relevant, and within it, the 'Title' column is needed to filter the post, and the 'OwnerDisplayName' column is needed to retrieve the owner's display name.",
+            "filtered_schema_dict": {
+                "posts": [
+                    "Title",
+                    "OwnerDisplayName"
+                ]
+            },
+            "prompt_tokens": 10769,
+            "completion_tokens": 153,
+            "total_tokens": 10922
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "posts": [
+                    "Title",
+                    "OwnerDisplayName"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE posts (\nId INTEGER primary key, \nTitle TEXT,\nOwnerDisplayName TEXT,\n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the owner of the post with the title 'Eliciting priors from experts'. According to the database schema, the posts table contains the columns 'Title' and 'OwnerDisplayName', where 'OwnerDisplayName' represents the display name of the post owner. To find the owner, we need to select the 'OwnerDisplayName' from the posts table where the 'Title' matches 'Eliciting priors from experts'.",
+            "possible_sql": "SELECT `OwnerDisplayName` FROM `posts` WHERE `Title` = 'Eliciting priors from experts'",
+            "exec_err": "",
+            "prompt_tokens": 2880,
+            "completion_tokens": 131,
+            "total_tokens": 3011
+        },
+        "possible_sql": "SELECT `OwnerDisplayName` FROM `posts` WHERE `Title` = 'Eliciting priors from experts'",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the owner of a post with the title 'Eliciting priors from experts'. From the database schema, the posts table contains the columns Id, Title, and OwnerDisplayName. The Title column stores the title of the post, and the OwnerDisplayName column stores the display name of the post owner. The evidence confirms that 'Eliciting priors from experts' is a post title and that the owner refers to the display name of the post owner. To answer this question, we need to find the row in the posts table where Title equals 'Eliciting priors from experts' and then retrieve the OwnerDisplayName from that row. This involves a simple selection condition on the Title column and selecting the OwnerDisplayName column. No joins or additional tables are required. The refined question should explicitly mention the posts table, the Title column with the specific value, and the OwnerDisplayName column to clarify the intent and facilitate SQL query formulation.",
+            "enriched_question": "Please find the display name of the owner (posts.OwnerDisplayName) of the post whose title is 'Eliciting priors from experts' (posts.Title = 'Eliciting priors from experts') from the posts table.",
+            "prompt_tokens": 8009,
+            "completion_tokens": 259,
+            "total_tokens": 8268
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the owner of the post titled 'Eliciting priors from experts'. According to the database schema, the posts table contains the columns Title and OwnerDisplayName, where Title stores the post title and OwnerDisplayName stores the display name of the post owner. The evidence confirms that the title 'Eliciting priors from experts' is a post title and the owner refers to the display name. Therefore, the query should select the OwnerDisplayName from the posts table where the Title matches 'Eliciting priors from experts'. The possible SQL query provided is already correct and matches the schema and question requirements. No joins or additional conditions are necessary. The query is syntactically correct and uses backticks around table and column names as required.",
+            "predicted_sql": "SELECT `OwnerDisplayName` FROM `posts` WHERE `Title` = 'Eliciting priors from experts'",
+            "prompt_tokens": 3555,
+            "completion_tokens": 193,
+            "total_tokens": 3748
+        },
+        "predicted_sql": "SELECT `OwnerDisplayName` FROM `posts` WHERE `Title` = 'Eliciting priors from experts'",
+        "total_usage": {
+            "prompt_tokens": 14444,
+            "completion_tokens": 583,
+            "total_tokens": 15027
+        },
+        "timing": {
+            "SF": 76.50793099403381,
+            "CSG": 42.15002632141113,
+            "QE": 8.81588625907898,
+            "SR": 45.2295298576355,
+            "total_time": 172.70337343215942
+        },
+        "results": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer"
+        }
+    },
+    {
+        "question_id": 592,
+        "db_id": "codebase_community",
+        "question": "How many users are awarded with more than 5 badges?",
+        "evidence": "more than 5 badges refers to Count (Name) > 5; user refers to UserId",
+        "SQL": "SELECT\n  COUNT(`UserId`)\nFROM (\n  SELECT\n    `UserId`,\n    COUNT(`Name`) AS `num`\n  FROM `badges`\n  GROUP BY\n    `UserId`\n) AS `T`\nWHERE\n  `T`.`num` > 5",
+        "difficulty": "simple",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the number of users who have been awarded more than 5 badges. The key entity is 'users' and the count of badges per user. The badges table contains UserId and Name (badge name), so counting the number of badges per UserId is essential. The users table is not directly needed to answer the count of users with more than 5 badges, as the badges table already has UserId. Therefore, only the badges table with UserId and Name columns is necessary to count badges per user and filter users with more than 5 badges.",
+            "filtered_schema_dict": {
+                "badges": [
+                    "UserId",
+                    "Name"
+                ]
+            },
+            "prompt_tokens": 9826,
+            "completion_tokens": 149,
+            "total_tokens": 9975
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "badges": [
+                    "UserId",
+                    "Name"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE badges (\nId INTEGER primary key, \nUserId INTEGER,\nName TEXT,\nforeing key (UserId) references users(Id) \n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the number of users who have been awarded more than 5 badges. Each badge is recorded in the 'badges' table with a 'UserId' and a 'Name'. To find users with more than 5 badges, we need to count the number of badges per user (group by 'UserId') and then filter those counts to be greater than 5. Finally, we count how many such users exist. This requires a subquery to group badges by 'UserId' and count them, then an outer query to count how many users meet the condition.",
+            "possible_sql": "SELECT COUNT(*) FROM (SELECT `UserId`, COUNT(`Name`) AS badge_count FROM `badges` GROUP BY `UserId` HAVING badge_count > 5)",
+            "exec_err": "",
+            "prompt_tokens": 2688,
+            "completion_tokens": 170,
+            "total_tokens": 2858
+        },
+        "possible_sql": "SELECT COUNT(*) FROM (SELECT `UserId`, COUNT(`Name`) AS badge_count FROM `badges` GROUP BY `UserId` HAVING badge_count > 5)",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the number of users who have been awarded more than 5 badges. The badges table contains the relevant information with columns UserId and Name, where UserId identifies the user and Name identifies the badge awarded. To answer this question, we need to count the number of badges per user by grouping the badges table by UserId and counting the number of Name entries for each user. Then, we apply a condition to filter users who have more than 5 badges (COUNT(Name) > 5). Finally, we count how many such users exist. Since the question focuses on users with more than 5 badges, the key database components are badges.UserId and badges.Name. The SQL query would involve GROUP BY badges.UserId, HAVING COUNT(badges.Name) > 5, and then counting the number of such UserIds. This refined question explicitly mentions the badges table, the UserId and Name columns, the grouping and counting logic, and the condition on the count of badges per user, making it clearer and easier to translate into SQL.",
+            "enriched_question": "Please find the number of distinct users (badges.UserId) who have been awarded more than 5 badges (COUNT(badges.Name) > 5). To do this, group the records in the badges table by UserId, count the number of badges (Name) each user has, apply the condition that the count of badges is greater than 5, and then count how many users satisfy this condition.",
+            "prompt_tokens": 5890,
+            "completion_tokens": 316,
+            "total_tokens": 6206
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the number of users who have been awarded more than 5 badges. The badges table contains the UserId and Name columns, where UserId identifies the user and Name identifies the badge awarded. To find the answer, we need to group the badges by UserId and count the number of badges each user has. Then, we filter to keep only those users with a badge count greater than 5. Finally, we count how many such users exist. The possible SQL query provided is almost correct but misses an alias for the subquery, which is required in SQLite. Adding an alias to the subquery will fix the syntax error. The final query groups by UserId, counts badges, filters by count > 5, and counts the number of such users, which directly answers the question.",
+            "predicted_sql": "SELECT COUNT(*) FROM (SELECT `UserId`, COUNT(`Name`) AS badge_count FROM `badges` GROUP BY `UserId` HAVING badge_count > 5) AS subquery",
+            "prompt_tokens": 2215,
+            "completion_tokens": 216,
+            "total_tokens": 2431
+        },
+        "predicted_sql": "SELECT COUNT(*) FROM (SELECT `UserId`, COUNT(`Name`) AS badge_count FROM `badges` GROUP BY `UserId` HAVING badge_count > 5) AS subquery",
+        "total_usage": {
+            "prompt_tokens": 10793,
+            "completion_tokens": 702,
+            "total_tokens": 11495
+        },
+        "timing": {
+            "SF": 97.73684453964233,
+            "CSG": 4.516205072402954,
+            "QE": 5.488268613815308,
+            "SR": 8.887123346328735,
+            "total_time": 116.62844157218933
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 701,
+        "db_id": "codebase_community",
+        "question": "Among all the posts posted by the most influential user, identify the percentage with a score above 50.",
+        "evidence": "The higher reputation the user has the more influence; percentage = DIVIDE(COUNT(stats_posts.Id where Score > 50 and MAX(Reputation))), COUNT(stats_posts.Id where MAX(Reputation));",
+        "SQL": "SELECT\n  CAST(SUM(CASE WHEN `T2`.`Score` > 50 THEN 1 ELSE 0 END) AS DOUBLE) * 100 / COUNT(`T1`.`Id`)\nFROM `users` AS `T1`\nINNER JOIN `posts` AS `T2`\n  ON `T1`.`Id` = `T2`.`OwnerUserId`\nINNER JOIN (\n  SELECT\n    MAX(`Reputation`) AS `max_reputation`\n  FROM `users`\n) AS `T3`\n  ON `T1`.`Reputation` = `T3`.`max_reputation`",
+        "difficulty": "challenging",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the percentage of posts by the most influential user that have a score above 50. 'Most influential user' is defined by the highest reputation, which is stored in the users table under the Reputation column. Posts are linked to users via the OwnerUserId column in the posts table. To answer the question, we need to identify the user with the maximum Reputation from the users table, then find all posts by that user (posts.OwnerUserId), and count how many of those posts have a Score greater than 50. We also need the total count of posts by that user to calculate the percentage. Therefore, the relevant tables are users and posts. From users, we need Id and Reputation to find the most influential user. From posts, we need OwnerUserId to link posts to users, Score to filter posts with score above 50, and Id to count posts.",
+            "filtered_schema_dict": {
+                "users": [
+                    "Id",
+                    "Reputation"
+                ],
+                "posts": [
+                    "Id",
+                    "OwnerUserId",
+                    "Score"
+                ]
+            },
+            "prompt_tokens": 11636,
+            "completion_tokens": 228,
+            "total_tokens": 11864
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "users": [
+                    "Id",
+                    "Reputation"
+                ],
+                "posts": [
+                    "Id",
+                    "OwnerUserId",
+                    "Score"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE users (\nId INTEGER primary key, \nReputation INTEGER,\n)\nCREATE TABLE posts (\nId INTEGER primary key, \nScore INTEGER,\nOwnerUserId INTEGER,\nforeing key (OwnerUserId) references users(Id) \n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the percentage of posts with a score above 50 among all posts posted by the most influential user. The most influential user is defined as the user with the highest reputation. First, we need to identify the user with the maximum reputation from the users table. Then, we find all posts by that user from the posts table. Among these posts, we count how many have a score above 50 and how many posts in total the user has. Finally, we calculate the percentage by dividing the count of posts with score > 50 by the total posts count and multiplying by 100. We ensure to handle null scores by filtering only posts where score is not null to avoid errors in comparison.",
+            "possible_sql": "SELECT CAST(SUM(CASE WHEN `Score` > 50 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(`Id`) AS percentage FROM `posts` WHERE `OwnerUserId` = (SELECT `Id` FROM `users` ORDER BY `Reputation` DESC LIMIT 1) AND `Score` IS NOT NULL",
+            "exec_err": "",
+            "prompt_tokens": 2930,
+            "completion_tokens": 229,
+            "total_tokens": 3159
+        },
+        "possible_sql": "SELECT CAST(SUM(CASE WHEN `Score` > 50 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(`Id`) AS percentage FROM `posts` WHERE `OwnerUserId` = (SELECT `Id` FROM `users` ORDER BY `Reputation` DESC LIMIT 1) AND `Score` IS NOT NULL",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks to find the percentage of posts with a score above 50 among all posts posted by the most influential user. The term 'most influential user' is interpreted as the user with the highest reputation, which is stored in the users table under the Reputation column. Posts are stored in the posts table, with each post linked to its owner via the OwnerUserId column. The score of each post is stored in the Score column of the posts table. To answer the question, first identify the user with the maximum Reputation from the users table. Then, filter posts in the posts table where OwnerUserId matches this user's Id. Among these posts, count how many have a Score greater than 50. Calculate the percentage by dividing the count of posts with Score > 50 by the total number of posts by that user, then multiply by 100. This involves joining or filtering posts by OwnerUserId, applying the score condition, and performing aggregate counts. The question is expanded to explicitly mention the relevant tables (users and posts), columns (users.Reputation, users.Id, posts.OwnerUserId, posts.Score), and the calculation steps for clarity and ease of SQL translation.",
+            "enriched_question": "Please find the percentage of posts that have a score greater than 50 (posts.Score > 50) among all posts posted by the user with the highest reputation (users.Reputation). First, identify the user with the maximum reputation from the users table (MAX(users.Reputation)). Then, filter the posts table to include only posts where posts.OwnerUserId matches this user's Id (posts.OwnerUserId = users.Id). Count the number of posts with score above 50 and divide it by the total number of posts by this user to calculate the percentage.",
+            "prompt_tokens": 6320,
+            "completion_tokens": 365,
+            "total_tokens": 6685
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the percentage of posts with a score above 50 among all posts posted by the most influential user. The most influential user is defined as the user with the highest reputation in the users table. To solve this, first identify the user with the maximum reputation by ordering the users table by Reputation in descending order and limiting to 1. Then, filter the posts table to include only posts where OwnerUserId matches this user's Id. Among these posts, count how many have a Score greater than 50 and divide by the total number of posts by that user. Multiplying by 100 gives the percentage. The Score column should be checked for IS NOT NULL to avoid errors in the calculation. The provided possible SQL query correctly implements this logic by using a subquery to find the user with the highest reputation and then calculating the percentage using a conditional sum and count. The SQL syntax is correct, and all table and column names are enclosed in backticks as required. Therefore, the final SQL query is as follows.",
+            "predicted_sql": "SELECT CAST(SUM(CASE WHEN `Score` > 50 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(`Id`) AS percentage FROM `posts` WHERE `OwnerUserId` = (SELECT `Id` FROM `users` ORDER BY `Reputation` DESC LIMIT 1) AND `Score` IS NOT NULL",
+            "prompt_tokens": 2423,
+            "completion_tokens": 292,
+            "total_tokens": 2715
+        },
+        "predicted_sql": "SELECT CAST(SUM(CASE WHEN `Score` > 50 THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(`Id`) AS percentage FROM `posts` WHERE `OwnerUserId` = (SELECT `Id` FROM `users` ORDER BY `Reputation` DESC LIMIT 1) AND `Score` IS NOT NULL",
+        "total_usage": {
+            "prompt_tokens": 11673,
+            "completion_tokens": 886,
+            "total_tokens": 12559
+        },
+        "timing": {
+            "SF": 77.38746070861816,
+            "CSG": 7.589393615722656,
+            "QE": 5.726456880569458,
+            "SR": 4.865930080413818,
+            "total_time": 95.5692412853241
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 379,
+        "db_id": "card_games",
+        "question": "What are the cards belong to duel deck a? List the ID.",
+        "evidence": "duel deck a refers to duelDeck = a;",
+        "SQL": "SELECT\n  `id`\nFROM `cards`\nWHERE\n  `duelDeck` = 'a'",
+        "difficulty": "simple",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the cards that belong to duel deck 'a' and requests their IDs. The key term 'duel deck a' directly corresponds to the 'duelDeck' column in the 'cards' table, where the value should be 'a'. The ID of the cards is stored in the 'id' column of the 'cards' table. No other tables or columns are relevant to this query since the question specifically focuses on cards and their duel deck classification.",
+            "filtered_schema_dict": {
+                "cards": [
+                    "id",
+                    "duelDeck"
+                ]
+            },
+            "prompt_tokens": 14699,
+            "completion_tokens": 130,
+            "total_tokens": 14829
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "cards": [
+                    "id",
+                    "duelDeck"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE cards (\nid INTEGER primary key, \nduelDeck TEXT,\n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the IDs of cards that belong to duel deck 'a'. The relevant table is 'cards' and the relevant column is 'duelDeck'. We need to filter the rows where duelDeck = 'a' and select the 'id' column. Since the question only asks for the IDs, we select only the 'id' column from the 'cards' table where duelDeck equals 'a'.",
+            "possible_sql": "SELECT `id` FROM `cards` WHERE `duelDeck` = 'a'",
+            "exec_err": "",
+            "prompt_tokens": 2895,
+            "completion_tokens": 118,
+            "total_tokens": 3013
+        },
+        "possible_sql": "SELECT `id` FROM `cards` WHERE `duelDeck` = 'a'",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the cards that belong to duel deck 'a' and requests their IDs. From the database schema, the relevant table is 'cards' which contains the 'id' column representing the card ID and the 'duelDeck' column indicating which duel deck the card belongs to. The column description for 'duelDeck' confirms it is the indicator for which duel deck the card is in. The evidence explicitly states that duel deck 'a' corresponds to duelDeck = 'a'. The possible SQL condition also supports filtering cards where duelDeck = 'a'. Therefore, to answer the question, we need to select the 'id' column from the 'cards' table where the 'duelDeck' column equals 'a'. This involves a simple filtering condition on the 'cards.duelDeck' column and selecting the 'cards.id' column. The enriched question should clearly specify the table and columns involved, the condition on the duelDeck column, and the output as the list of card IDs.",
+            "enriched_question": "Please find the IDs (cards.id) of all cards in the cards table whose duel deck indicator (cards.duelDeck) is equal to 'a' (cards.duelDeck = 'a'). List all such card IDs that belong to duel deck 'a'.",
+            "prompt_tokens": 6244,
+            "completion_tokens": 275,
+            "total_tokens": 6519
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the IDs of cards that belong to duel deck 'a'. According to the database schema, the 'cards' table contains the 'id' column representing the card ID and the 'duelDeck' column indicating which duel deck the card belongs to. The evidence confirms that duel deck 'a' corresponds to duelDeck = 'a'. The possible SQL condition also supports filtering cards where duelDeck = 'a'. Therefore, the correct query is to select the 'id' column from the 'cards' table where the 'duelDeck' column equals 'a'. This is a straightforward filtering operation without any joins or aggregations.",
+            "predicted_sql": "SELECT `id` FROM `cards` WHERE `duelDeck` = 'a'",
+            "prompt_tokens": 2290,
+            "completion_tokens": 163,
+            "total_tokens": 2453
+        },
+        "predicted_sql": "SELECT `id` FROM `cards` WHERE `duelDeck` = 'a'",
+        "total_usage": {
+            "prompt_tokens": 11429,
+            "completion_tokens": 556,
+            "total_tokens": 11985
+        },
+        "timing": {
+            "SF": 51.413405656814575,
+            "CSG": 3.326247453689575,
+            "QE": 3.9903945922851562,
+            "SR": 9.707772016525269,
+            "total_time": 68.43781971931458
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 466,
+        "db_id": "card_games",
+        "question": "Among the cards in the set \"Hauptset Zehnte Edition\", how many of them are designed by Adam Rex?",
+        "evidence": "card set \"Hauptset Zehnte Edition\" refers to translation = 'Hauptset Zehnte Edition'; designed by Adam refers to artist = 'Adam Rex'",
+        "SQL": "SELECT\n  COUNT(`T1`.`id`)\nFROM `cards` AS `T1`\nINNER JOIN `set_translations` AS `T2`\n  ON `T2`.`setCode` = `T1`.`setCode`\nWHERE\n  `T2`.`translation` = 'Hauptset Zehnte Edition' AND `T1`.`artist` = 'Adam Rex'",
+        "difficulty": "moderate",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the count of cards designed by 'Adam Rex' in the set named 'Hauptset Zehnte Edition'. The set name 'Hauptset Zehnte Edition' is given as a translation in the set_translations table under the 'translation' column. To link this to the cards, we need the set code from set_translations (via setCode) and then match it with cards.setCode. The cards table contains the 'artist' column which identifies the designer of the card. Therefore, to answer the question, we need to join cards with set_translations on setCode and filter by translation = 'Hauptset Zehnte Edition' and artist = 'Adam Rex'. Hence, the relevant tables and columns are: set_translations (translation, setCode) and cards (artist, setCode).",
+            "filtered_schema_dict": {
+                "cards": [
+                    "artist",
+                    "setCode"
+                ],
+                "set_translations": [
+                    "translation",
+                    "setCode"
+                ]
+            },
+            "prompt_tokens": 14603,
+            "completion_tokens": 214,
+            "total_tokens": 14817
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "cards": [
+                    "artist",
+                    "setCode"
+                ],
+                "set_translations": [
+                    "translation",
+                    "setCode"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE cards (\nid INTEGER primary key, \nartist TEXT,\nsetCode TEXT,\n)\nCREATE TABLE set_translations (\nid INTEGER primary key, \nsetCode TEXT,\ntranslation TEXT,\nforeing key (setCode) references sets(code) \n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the count of cards designed by 'Adam Rex' in the set named 'Hauptset Zehnte Edition'. The set name is given in the set_translations table under the 'translation' column. To find the relevant cards, we first need to find the setCode corresponding to the translation 'Hauptset Zehnte Edition' from the set_translations table. Then, using this setCode, we filter the cards table to count how many cards have that setCode and artist 'Adam Rex'. This requires an inner join between cards and set_translations on setCode, filtering by translation and artist, and then counting the matching cards.",
+            "possible_sql": "SELECT COUNT(`cards`.`id`) FROM `cards` INNER JOIN `set_translations` ON `cards`.`setCode` = `set_translations`.`setCode` WHERE `set_translations`.`translation` = 'Hauptset Zehnte Edition' AND `cards`.`artist` = 'Adam Rex'",
+            "exec_err": "",
+            "prompt_tokens": 2844,
+            "completion_tokens": 209,
+            "total_tokens": 3053
+        },
+        "possible_sql": "SELECT COUNT(`cards`.`id`) FROM `cards` INNER JOIN `set_translations` ON `cards`.`setCode` = `set_translations`.`setCode` WHERE `set_translations`.`translation` = 'Hauptset Zehnte Edition' AND `cards`.`artist` = 'Adam Rex'",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the count of cards designed by 'Adam Rex' within the set named 'Hauptset Zehnte Edition'. The set name 'Hauptset Zehnte Edition' is a translation of a set code, which is stored in the set_translations table under the 'translation' column. To identify the cards belonging to this set, we need to link the set_translations table with the cards table via the 'setCode' column, as set_translations.setCode references sets.code and cards.setCode represents the set printing code of each card. The artist information is stored in the cards table under the 'artist' column. Therefore, to answer the question, we must join the cards and set_translations tables on the 'setCode' column, filter the set_translations.translation to 'Hauptset Zehnte Edition' to identify the correct set, and filter cards.artist to 'Adam Rex' to find cards designed by this artist. Finally, we count the number of such cards. This approach ensures that the question is directly linked to the database schema and columns, making it clear and straightforward to translate into SQL.",
+            "enriched_question": "Please find the number of cards (COUNT(cards.id)) designed by the artist 'Adam Rex' (cards.artist = 'Adam Rex') that belong to the set with the translation 'Hauptset Zehnte Edition' (set_translations.translation = 'Hauptset Zehnte Edition'). Join the cards table and the set_translations table on the setCode column (cards.setCode = set_translations.setCode) to filter cards by the specified set translation.",
+            "prompt_tokens": 8202,
+            "completion_tokens": 338,
+            "total_tokens": 8540
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the count of cards designed by 'Adam Rex' in the set named 'Hauptset Zehnte Edition'. The set name is stored as a translation in the set_translations table, linked to cards by the setCode column. The artist information is in the cards table. To answer, we join cards and set_translations on setCode, filter set_translations.translation to 'Hauptset Zehnte Edition' and cards.artist to 'Adam Rex', then count the matching cards. The possible SQL query provided already correctly implements this logic, using INNER JOIN and appropriate WHERE conditions. The query references existing tables and columns, uses correct syntax, and applies the filters as required. Therefore, the final SQL query is the same as the possible SQL query provided.",
+            "predicted_sql": "SELECT COUNT(`cards`.`id`) FROM `cards` INNER JOIN `set_translations` ON `cards`.`setCode` = `set_translations`.`setCode` WHERE `set_translations`.`translation` = 'Hauptset Zehnte Edition' AND `cards`.`artist` = 'Adam Rex'",
+            "prompt_tokens": 4590,
+            "completion_tokens": 232,
+            "total_tokens": 4822
+        },
+        "predicted_sql": "SELECT COUNT(`cards`.`id`) FROM `cards` INNER JOIN `set_translations` ON `cards`.`setCode` = `set_translations`.`setCode` WHERE `set_translations`.`translation` = 'Hauptset Zehnte Edition' AND `cards`.`artist` = 'Adam Rex'",
+        "total_usage": {
+            "prompt_tokens": 15636,
+            "completion_tokens": 779,
+            "total_tokens": 16415
+        },
+        "timing": {
+            "SF": 50.10698056221008,
+            "CSG": 46.820637941360474,
+            "QE": 4.264252185821533,
+            "SR": 54.4461669921875,
+            "total_time": 155.6380376815796
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 198,
+        "db_id": "toxicology",
+        "question": "On average how many carcinogenic molecules are single bonded?",
+        "evidence": "carcinogenic molecules refers to label = '+'; single-bonded refers to bond_type = '-'; average = DIVIDE(SUM(bond_type = '-'), COUNT(atom_id))",
+        "SQL": "SELECT\n  AVG(`single_bond_count`)\nFROM (\n  SELECT\n    `T3`.`molecule_id`,\n    COUNT(`T1`.`bond_type`) AS `single_bond_count`\n  FROM `bond` AS `T1`\n  INNER JOIN `atom` AS `T2`\n    ON `T1`.`molecule_id` = `T2`.`molecule_id`\n  INNER JOIN `molecule` AS `T3`\n    ON `T3`.`molecule_id` = `T2`.`molecule_id`\n  WHERE\n    `T1`.`bond_type` = '-' AND `T3`.`label` = '+'\n  GROUP BY\n    `T3`.`molecule_id`\n) AS `subquery`",
+        "difficulty": "challenging",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the average number of carcinogenic molecules that are single bonded. 'Carcinogenic molecules' are identified by the molecule's label being '+', which is stored in the molecule table under the 'label' column. 'Single bonded' refers to bonds with bond_type '-', which is stored in the bond table under the 'bond_type' column. To find the average number of such molecules, we need to link molecules with their bonds. The molecule_id column in both molecule and bond tables allows this connection. The question does not require atom or connected tables since it focuses on molecules and their bond types, not individual atoms or connections. Therefore, only the molecule table (for label and molecule_id) and the bond table (for bond_type and molecule_id) are necessary.",
+            "filtered_schema_dict": {
+                "molecule": [
+                    "molecule_id",
+                    "label"
+                ],
+                "bond": [
+                    "molecule_id",
+                    "bond_type"
+                ]
+            },
+            "prompt_tokens": 3219,
+            "completion_tokens": 205,
+            "total_tokens": 3424
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "molecule": [
+                    "molecule_id",
+                    "label"
+                ],
+                "bond": [
+                    "molecule_id",
+                    "bond_type"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE molecule (\nmolecule_id TEXT primary key, \nlabel TEXT,\n)\nCREATE TABLE bond (\nbond_id TEXT primary key, \nmolecule_id TEXT,\nbond_type TEXT,\nforeing key (molecule_id) references molecule(molecule_id) \n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the average number of carcinogenic molecules that have single bonds. Carcinogenic molecules are identified by label = '+'. Single bonds are identified by bond_type = '-'. We need to find the count of single bonds for carcinogenic molecules and then calculate the average number of such single bonds per carcinogenic molecule. To do this, we join the molecule and bond tables on molecule_id, filter for carcinogenic molecules (label = '+') and single bonds (bond_type = '-'), then count the number of such bonds. We also count the number of distinct carcinogenic molecules to get the denominator for the average. The average is then calculated as the total count of single bonds divided by the count of distinct carcinogenic molecules. We use CAST to ensure floating point division. We include IS NOT NULL conditions to avoid null issues in division. This results in the final SQL query below.",
+            "possible_sql": "SELECT CAST(COUNT(`bond`.`bond_id`) AS REAL) / COUNT(DISTINCT `molecule`.`molecule_id`) AS average_single_bonds FROM `molecule` INNER JOIN `bond` ON `molecule`.`molecule_id` = `bond`.`molecule_id` WHERE `molecule`.`label` = '+' AND `bond`.`bond_type` = '-' AND `bond`.`bond_id` IS NOT NULL AND `molecule`.`molecule_id` IS NOT NULL",
+            "exec_err": "",
+            "prompt_tokens": 2674,
+            "completion_tokens": 291,
+            "total_tokens": 2965
+        },
+        "possible_sql": "SELECT CAST(COUNT(`bond`.`bond_id`) AS REAL) / COUNT(DISTINCT `molecule`.`molecule_id`) AS average_single_bonds FROM `molecule` INNER JOIN `bond` ON `molecule`.`molecule_id` = `bond`.`molecule_id` WHERE `molecule`.`label` = '+' AND `bond`.`bond_type` = '-' AND `bond`.`bond_id` IS NOT NULL AND `molecule`.`molecule_id` IS NOT NULL",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks about the average number of carcinogenic molecules that are single bonded. From the database schema, the molecule table contains molecule_id and label, where label '+' indicates carcinogenic molecules. The bond table contains bond_id, molecule_id, and bond_type, where bond_type '-' indicates a single bond. To answer the question, we need to identify molecules labeled as carcinogenic (molecule.label = '+') and count the bonds of type single bond (bond.bond_type = '-'). The average number of single bonds per carcinogenic molecule can be calculated by joining the molecule and bond tables on molecule_id, filtering for carcinogenic molecules and single bonds, counting the number of such bonds, and dividing by the total number of carcinogenic molecules. The evidence suggests average = DIVIDE(SUM(bond_type = '-'), COUNT(atom_id)), but since atom_id is not in the schema, the count should be on distinct molecule_id or total carcinogenic molecules. Therefore, the refined question should explicitly mention the molecule.label = '+' condition for carcinogenic molecules, bond.bond_type = '-' for single bonds, and the calculation of average number of single bonds per carcinogenic molecule by joining molecule and bond tables on molecule_id. This makes the question clearer, more precise, and directly linked to the database schema and columns, facilitating SQL query formulation.",
+            "enriched_question": "Please find the average number of single bonds (bond.bond_type = '-') per carcinogenic molecule (molecule.label = '+'). To do this, join the molecule and bond tables on molecule_id, filter for carcinogenic molecules using molecule.label = '+', and count the number of single bonds for these molecules. Then, calculate the average by dividing the total count of single bonds by the total number of carcinogenic molecules.",
+            "prompt_tokens": 6178,
+            "completion_tokens": 369,
+            "total_tokens": 6547
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the average number of single bonds per carcinogenic molecule. From the schema, carcinogenic molecules are identified by molecule.label = '+', and single bonds are identified by bond.bond_type = '-'. To find the average number of single bonds per carcinogenic molecule, we need to join the molecule and bond tables on molecule_id, filter for carcinogenic molecules and single bonds, count the total number of single bonds for these molecules, and then divide by the total number of distinct carcinogenic molecules. The possible SQL query provided is mostly correct but can be improved by ensuring that the counts are done correctly and that null values are handled properly. The conditions `bond.bond_id IS NOT NULL` and `molecule.molecule_id IS NOT NULL` are good to ensure no nulls affect the counts. The division is cast to REAL to get a floating-point average. This query accurately reflects the relationships and conditions required to answer the question.",
+            "predicted_sql": "SELECT CAST(COUNT(`bond`.`bond_id`) AS REAL) / COUNT(DISTINCT `molecule`.`molecule_id`) AS average_single_bonds FROM `molecule` INNER JOIN `bond` ON `molecule`.`molecule_id` = `bond`.`molecule_id` WHERE `molecule`.`label` = '+' AND `bond`.`bond_type` = '-' AND `bond`.`bond_id` IS NOT NULL AND `molecule`.`molecule_id` IS NOT NULL",
+            "prompt_tokens": 2223,
+            "completion_tokens": 307,
+            "total_tokens": 2530
+        },
+        "predicted_sql": "SELECT CAST(COUNT(`bond`.`bond_id`) AS REAL) / COUNT(DISTINCT `molecule`.`molecule_id`) AS average_single_bonds FROM `molecule` INNER JOIN `bond` ON `molecule`.`molecule_id` = `bond`.`molecule_id` WHERE `molecule`.`label` = '+' AND `bond`.`bond_type` = '-' AND `bond`.`bond_id` IS NOT NULL AND `molecule`.`molecule_id` IS NOT NULL",
+        "total_usage": {
+            "prompt_tokens": 11075,
+            "completion_tokens": 967,
+            "total_tokens": 12042
+        },
+        "timing": {
+            "SF": 4.79936408996582,
+            "CSG": 4.507522344589233,
+            "QE": 4.9437408447265625,
+            "SR": 7.351354122161865,
+            "total_time": 21.60198140144348
+        },
+        "results": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer"
+        }
+    },
+    {
+        "question_id": 239,
+        "db_id": "toxicology",
+        "question": "How many connections does the atom 19 have?",
+        "evidence": "connections refers to bond_id; atom 19 refers to atom_id like 'TR%_19';",
+        "SQL": "SELECT\n  COUNT(`T`.`bond_id`)\nFROM `connected` AS `T`\nWHERE\n  SUBSTR(`T`.`atom_id`, -2) = '19'",
+        "difficulty": "simple",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the number of connections of atom 19. Connections are represented by bond_id in the connected table, and atom 19 is identified by atom_id like 'TR%_19'. Therefore, the connected table is essential because it links atom_id and atom_id2 with bond_id, representing connections between atoms. The atom table is not necessary here because the question focuses on connections (bonds) involving atom 19, not on atom properties or molecule details. The molecule and bond tables are not directly needed since the question is about counting connections for a specific atom_id pattern. Hence, only the connected table with columns atom_id, atom_id2, and bond_id is required to identify and count all connections involving atom 19.",
+            "filtered_schema_dict": {
+                "connected": [
+                    "atom_id",
+                    "atom_id2",
+                    "bond_id"
+                ]
+            },
+            "prompt_tokens": 3154,
+            "completion_tokens": 188,
+            "total_tokens": 3342
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "connected": [
+                    "atom_id",
+                    "atom_id2",
+                    "bond_id"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE connected (\natom_id TEXT, \natom_id2 TEXT, \nbond_id TEXT,\nprimary key (atom_id, atom_id2),\nforeing key (bond_id) references bond(bond_id) \nforeing key (atom_id2) references atom(atom_id) \nforeing key (atom_id) references atom(atom_id) \n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the number of connections (bonds) that the atom 19 has. The evidence clarifies that atom 19 refers to any atom_id that ends with '_19' in the connected table. The connected table contains atom_id and atom_id2 columns representing two atoms connected by a bond, and bond_id representing the connection. To find all connections of atom 19, we need to count all rows where either atom_id or atom_id2 matches the pattern '%_19'. Since each row represents a connection, counting these rows gives the number of connections for atom 19.",
+            "possible_sql": "SELECT COUNT(*) FROM `connected` WHERE `atom_id` LIKE '%_19' OR `atom_id2` LIKE '%_19'",
+            "exec_err": "",
+            "prompt_tokens": 2876,
+            "completion_tokens": 162,
+            "total_tokens": 3038
+        },
+        "possible_sql": "SELECT COUNT(*) FROM `connected` WHERE `atom_id` LIKE '%_19' OR `atom_id2` LIKE '%_19'",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the number of connections of atom 19. According to the database schema, the 'connected' table stores connections between atoms via bonds, with columns atom_id, atom_id2, and bond_id. Each row represents a bond between two atoms. The atom_id columns contain atom identifiers in the format 'TRXXX_i', where 'i' is the atom number. The evidence clarifies that 'atom 19' corresponds to atom_id values like 'TR%_19', meaning any molecule but atom number 19. To find the number of connections for atom 19, we need to count all rows in the 'connected' table where either atom_id or atom_id2 matches the pattern '%_19'. This will count all bonds involving atom 19 regardless of whether it is the first or second atom in the connection. The bond_id column represents the bond connecting these atoms but is not directly needed for counting connections. The refined question should explicitly mention the 'connected' table and the atom_id pattern matching for atom 19, and specify counting the number of connections (bonds) involving atom 19 in any molecule. This makes the question clearer, directly linked to the database schema and columns, and easier to translate into SQL (e.g., counting rows where connected.atom_id LIKE '%_19' OR connected.atom_id2 LIKE '%_19').",
+            "enriched_question": "Please find the total number of connections (bonds) involving atom number 19 in any molecule. In the connected table, count all rows where either atom_id or atom_id2 matches the pattern '%_19', representing atom 19 in any molecule. This will give the number of bonds connected to atom 19.",
+            "prompt_tokens": 6459,
+            "completion_tokens": 357,
+            "total_tokens": 6816
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the number of connections (bonds) involving atom number 19 in any molecule. According to the database schema, the 'connected' table stores connections between atoms with columns 'atom_id' and 'atom_id2', each representing an atom involved in the bond. The atom_id format is 'TRXXX_i' where 'i' is the atom number. To find all connections involving atom 19, we need to count all rows where either 'atom_id' or 'atom_id2' ends with '_19'. This can be done using the LIKE operator with the pattern '%_19'. Counting these rows will give the total number of connections for atom 19. The provided possible SQL query correctly implements this logic and is syntactically valid and coherent with the schema. Therefore, the finalized SQL query is: SELECT COUNT(*) FROM `connected` WHERE `atom_id` LIKE '%_19' OR `atom_id2` LIKE '%_19'.",
+            "predicted_sql": "SELECT COUNT(*) FROM `connected` WHERE `atom_id` LIKE '%_19' OR `atom_id2` LIKE '%_19'",
+            "prompt_tokens": 2135,
+            "completion_tokens": 239,
+            "total_tokens": 2374
+        },
+        "predicted_sql": "SELECT COUNT(*) FROM `connected` WHERE `atom_id` LIKE '%_19' OR `atom_id2` LIKE '%_19'",
+        "total_usage": {
+            "prompt_tokens": 11470,
+            "completion_tokens": 758,
+            "total_tokens": 12228
+        },
+        "timing": {
+            "SF": 4.852032423019409,
+            "CSG": 3.2004971504211426,
+            "QE": 4.386186122894287,
+            "SR": 4.552096843719482,
+            "total_time": 16.99081254005432
+        },
+        "results": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer"
+        }
+    },
+    {
+        "question_id": 12,
+        "db_id": "california_schools",
+        "question": "Among the schools with an SAT excellence rate of over 0.3, what is the highest eligible free rate for students aged 5-17?",
+        "evidence": "Excellence rate = NumGE1500 / NumTstTakr; Eligible free rates for students aged 5-17 = `Free Meal Count (Ages 5-17)` / `Enrollment (Ages 5-17)`",
+        "SQL": "SELECT\n  MAX(\n    CAST(`T1`.`Free Meal Count (Ages 5-17)` AS DOUBLE) / `T1`.`Enrollment (Ages 5-17)`\n  )\nFROM `frpm` AS `T1`\nINNER JOIN `satscores` AS `T2`\n  ON `T1`.`CDSCode` = `T2`.`cds`\nWHERE\n  CAST(`T2`.`NumGE1500` AS DOUBLE) / `T2`.`NumTstTakr` > 0.3",
+        "difficulty": "moderate",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for schools with an SAT excellence rate over 0.3 and the highest eligible free rate for students aged 5-17. The SAT excellence rate is defined as NumGE1500 / NumTstTakr, which are columns in the satscores table. The eligible free rate for students aged 5-17 is calculated as Free Meal Count (Ages 5-17) / Enrollment (Ages 5-17), which are columns in the frpm table. Both tables have a common key referencing schools via CDSCode (cds in satscores and CDSCode in frpm). Therefore, the relevant tables are satscores and frpm. From satscores, the necessary columns are cds, NumGE1500, and NumTstTakr to compute the excellence rate. From frpm, the necessary columns are CDSCode, Free Meal Count (Ages 5-17), and Enrollment (Ages 5-17) to compute the eligible free rate. No other tables or columns are needed to answer the question.",
+            "filtered_schema_dict": {
+                "satscores": [
+                    "cds",
+                    "NumGE1500",
+                    "NumTstTakr"
+                ],
+                "frpm": [
+                    "CDSCode",
+                    "Free Meal Count (Ages 5-17)",
+                    "Enrollment (Ages 5-17)"
+                ]
+            },
+            "prompt_tokens": 9545,
+            "completion_tokens": 292,
+            "total_tokens": 9837
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "satscores": [
+                    "cds",
+                    "NumGE1500",
+                    "NumTstTakr"
+                ],
+                "frpm": [
+                    "CDSCode",
+                    "Free Meal Count (Ages 5-17)",
+                    "Enrollment (Ages 5-17)"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE satscores (\ncds TEXT primary key, \nNumTstTakr INTEGER,\nNumGE1500 INTEGER,\nforeing key (cds) references schools(CDSCode) \n)\nCREATE TABLE frpm (\nCDSCode TEXT primary key, \nEnrollment (Ages 5-17) REAL,\nFree Meal Count (Ages 5-17) REAL,\nforeing key (CDSCode) references schools(CDSCode) \n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the highest eligible free rate for students aged 5-17 among schools with an SAT excellence rate over 0.3. The SAT excellence rate is defined as NumGE1500 / NumTstTakr from the satscores table. The eligible free rate for students aged 5-17 is defined as Free Meal Count (Ages 5-17) / Enrollment (Ages 5-17) from the frpm table. Both tables can be joined on the CDSCode/cds column. We need to filter schools where the excellence rate is greater than 0.3, ensure that NumTstTakr and Enrollment (Ages 5-17) are not null and not zero to avoid division errors, then calculate the eligible free rate and select the maximum value. The query orders by the eligible free rate descending and limits to 1 to get the highest value.",
+            "possible_sql": "SELECT (`frpm`.`Free Meal Count (Ages 5-17)` / `frpm`.`Enrollment (Ages 5-17)`) AS eligible_free_rate FROM `satscores` INNER JOIN `frpm` ON `satscores`.`cds` = `frpm`.`CDSCode` WHERE `satscores`.`NumTstTakr` IS NOT NULL AND `satscores`.`NumTstTakr` != 0 AND `frpm`.`Enrollment (Ages 5-17)` IS NOT NULL AND `frpm`.`Enrollment (Ages 5-17)` != 0 AND (`satscores`.`NumGE1500` * 1.0 / `satscores`.`NumTstTakr`) > 0.3 ORDER BY eligible_free_rate DESC LIMIT 1",
+            "exec_err": "",
+            "prompt_tokens": 3926,
+            "completion_tokens": 369,
+            "total_tokens": 4295
+        },
+        "possible_sql": "SELECT (`frpm`.`Free Meal Count (Ages 5-17)` / `frpm`.`Enrollment (Ages 5-17)`) AS eligible_free_rate FROM `satscores` INNER JOIN `frpm` ON `satscores`.`cds` = `frpm`.`CDSCode` WHERE `satscores`.`NumTstTakr` IS NOT NULL AND `satscores`.`NumTstTakr` != 0 AND `frpm`.`Enrollment (Ages 5-17)` IS NOT NULL AND `frpm`.`Enrollment (Ages 5-17)` != 0 AND (`satscores`.`NumGE1500` * 1.0 / `satscores`.`NumTstTakr`) > 0.3 ORDER BY eligible_free_rate DESC LIMIT 1",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the highest eligible free rate for students aged 5-17 among schools with an SAT excellence rate over 0.3. The SAT excellence rate is defined as the ratio of NumGE1500 to NumTstTakr from the satscores table. The eligible free rate for students aged 5-17 is calculated as the ratio of Free Meal Count (Ages 5-17) to Enrollment (Ages 5-17) from the frpm table. Both tables are linked by the school identifier, cds in satscores and CDSCode in frpm. To answer the question, we need to join satscores and frpm on cds = CDSCode, filter schools where NumTstTakr is not zero to avoid division by zero, and where the excellence rate (NumGE1500 / NumTstTakr) is greater than 0.3. Then, for these schools, calculate the eligible free rate (Free Meal Count (Ages 5-17) / Enrollment (Ages 5-17)) ensuring Enrollment (Ages 5-17) is not zero to avoid division by zero. Finally, select the maximum eligible free rate among these schools. This detailed understanding links the question to the relevant tables (satscores, frpm), columns (NumGE1500, NumTstTakr, Free Meal Count (Ages 5-17), Enrollment (Ages 5-17)), and conditions (NumTstTakr != 0, Enrollment (Ages 5-17) != 0, excellence rate > 0.3). The enriched question explicitly states these components and the calculation steps to make it clear and directly translatable into SQL.",
+            "enriched_question": "Please find the highest eligible free rate for students aged 5-17, calculated as (frpm.`Free Meal Count (Ages 5-17)` / frpm.`Enrollment (Ages 5-17)`), among schools where the SAT excellence rate, defined as (satscores.NumGE1500 / satscores.NumTstTakr), is greater than 0.3. Join the satscores table and frpm table on satscores.cds = frpm.CDSCode. Apply the conditions that satscores.NumTstTakr is not zero and frpm.`Enrollment (Ages 5-17)` is not zero to avoid division errors. Then filter for schools with excellence rate > 0.3 and select the maximum eligible free rate from these schools.",
+            "prompt_tokens": 7131,
+            "completion_tokens": 529,
+            "total_tokens": 7660
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the highest eligible free rate for students aged 5-17 among schools with an SAT excellence rate over 0.3. The SAT excellence rate is defined as NumGE1500 / NumTstTakr from the satscores table. The eligible free rate is defined as Free Meal Count (Ages 5-17) / Enrollment (Ages 5-17) from the frpm table. Both tables are linked by the school identifier (satscores.cds = frpm.CDSCode). To avoid division by zero, we must ensure NumTstTakr and Enrollment (Ages 5-17) are not zero or null. We join the two tables on the school code, filter for schools where the excellence rate is greater than 0.3, and then calculate the eligible free rate. Finally, we select the maximum eligible free rate by ordering descending and limiting to 1. The provided possible SQL query is mostly correct but can be improved by explicitly casting to REAL to ensure floating point division and by keeping the parentheses correct. The final query uses INNER JOIN, proper filtering, and ordering with LIMIT 1 to get the highest eligible free rate.",
+            "predicted_sql": "SELECT (`frpm`.`Free Meal Count (Ages 5-17)` * 1.0 / `frpm`.`Enrollment (Ages 5-17)`) AS eligible_free_rate FROM `satscores` INNER JOIN `frpm` ON `satscores`.`cds` = `frpm`.`CDSCode` WHERE `satscores`.`NumTstTakr` IS NOT NULL AND `satscores`.`NumTstTakr` != 0 AND `frpm`.`Enrollment (Ages 5-17)` IS NOT NULL AND `frpm`.`Enrollment (Ages 5-17)` != 0 AND (`satscores`.`NumGE1500` * 1.0 / `satscores`.`NumTstTakr`) > 0.3 ORDER BY eligible_free_rate DESC LIMIT 1",
+            "prompt_tokens": 3249,
+            "completion_tokens": 432,
+            "total_tokens": 3681
+        },
+        "predicted_sql": "SELECT (`frpm`.`Free Meal Count (Ages 5-17)` * 1.0 / `frpm`.`Enrollment (Ages 5-17)`) AS eligible_free_rate FROM `satscores` INNER JOIN `frpm` ON `satscores`.`cds` = `frpm`.`CDSCode` WHERE `satscores`.`NumTstTakr` IS NOT NULL AND `satscores`.`NumTstTakr` != 0 AND `frpm`.`Enrollment (Ages 5-17)` IS NOT NULL AND `frpm`.`Enrollment (Ages 5-17)` != 0 AND (`satscores`.`NumGE1500` * 1.0 / `satscores`.`NumTstTakr`) > 0.3 ORDER BY eligible_free_rate DESC LIMIT 1",
+        "total_usage": {
+            "prompt_tokens": 14306,
+            "completion_tokens": 1330,
+            "total_tokens": 15636
+        },
+        "timing": {
+            "SF": 10.14905071258545,
+            "CSG": 11.232203722000122,
+            "QE": 4.924056529998779,
+            "SR": 13.621047735214233,
+            "total_time": 39.926358699798584
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 62,
+        "db_id": "california_schools",
+        "question": "What is the total number of non-chartered schools in the county of Los Angeles with a percent (%) of eligible free meals for grades 1 through 12 that is less than 0.18%?",
+        "evidence": "non-chartered schools refer to schools whose Charter = 0; K-12 means grades 1 through 12; percent of eligible free rate for K-12 = `Free Meal Count (K-12)` * 100 / `Enrollment (K-12)`",
+        "SQL": "SELECT\n  COUNT(`T2`.`School`)\nFROM `frpm` AS `T1`\nINNER JOIN `schools` AS `T2`\n  ON `T1`.`CDSCode` = `T2`.`CDSCode`\nWHERE\n  `T2`.`County` = 'Los Angeles'\n  AND `T2`.`Charter` = 0\n  AND CAST(`T1`.`Free Meal Count (K-12)` AS DOUBLE) * 100 / `T1`.`Enrollment (K-12)` < 0.18",
+        "difficulty": "challenging",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the total number of non-chartered schools in Los Angeles County with a percent of eligible free meals for grades 1 through 12 less than 0.18%. The key points are: non-chartered schools (Charter = 0), county = 'Los Angeles', and percent eligible free meals for K-12 less than 0.18%. The percent eligible free meals for K-12 is calculated as Free Meal Count (K-12) * 100 / Enrollment (K-12). The relevant data about charter status and county is in the schools table (Charter and County columns). The free meal counts and enrollment for K-12 are in the frpm table (Free Meal Count (K-12) and Enrollment (K-12)). The tables are linked by CDSCode. Therefore, the useful tables are schools and frpm. From schools, we need CDSCode, Charter, and County. From frpm, we need CDSCode, Free Meal Count (K-12), and Enrollment (K-12). These columns allow filtering by county and charter status, calculating the percent eligible free meals, and counting the qualifying schools.",
+            "filtered_schema_dict": {
+                "schools": [
+                    "CDSCode",
+                    "Charter",
+                    "County"
+                ],
+                "frpm": [
+                    "CDSCode",
+                    "Free Meal Count (K-12)",
+                    "Enrollment (K-12)"
+                ]
+            },
+            "prompt_tokens": 9551,
+            "completion_tokens": 301,
+            "total_tokens": 9852
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "schools": [
+                    "CDSCode",
+                    "Charter",
+                    "County"
+                ],
+                "frpm": [
+                    "CDSCode",
+                    "Free Meal Count (K-12)",
+                    "Enrollment (K-12)"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE schools (\nCDSCode TEXT primary key, \nCounty TEXT,\nCharter INTEGER,\n)\nCREATE TABLE frpm (\nCDSCode TEXT primary key, \nEnrollment (K-12) REAL,\nFree Meal Count (K-12) REAL,\nforeing key (CDSCode) references schools(CDSCode) \n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the total number of non-chartered schools in Los Angeles county where the percent of eligible free meals for grades K-12 is less than 0.18%. Non-chartered schools are identified by Charter = 0 in the schools table. The percent eligible free meals is calculated as (Free Meal Count (K-12) / Enrollment (K-12)) * 100. We need to join the schools and frpm tables on CDSCode to get the necessary columns. Then filter by County = 'Los Angeles', Charter = 0, and the calculated percent eligible free meals < 0.18. Finally, count the number of such schools.",
+            "possible_sql": "SELECT COUNT(*) FROM `schools` AS s INNER JOIN `frpm` AS f ON s.`CDSCode` = f.`CDSCode` WHERE s.`County` = 'Los Angeles' AND s.`Charter` = 0 AND f.`Free Meal Count (K-12)` IS NOT NULL AND f.`Enrollment (K-12)` IS NOT NULL AND (CAST(f.`Free Meal Count (K-12)` AS REAL) * 100.0 / CAST(f.`Enrollment (K-12)` AS REAL)) < 0.18",
+            "exec_err": "",
+            "prompt_tokens": 3974,
+            "completion_tokens": 265,
+            "total_tokens": 4239
+        },
+        "possible_sql": "SELECT COUNT(*) FROM `schools` AS s INNER JOIN `frpm` AS f ON s.`CDSCode` = f.`CDSCode` WHERE s.`County` = 'Los Angeles' AND s.`Charter` = 0 AND f.`Free Meal Count (K-12)` IS NOT NULL AND f.`Enrollment (K-12)` IS NOT NULL AND (CAST(f.`Free Meal Count (K-12)` AS REAL) * 100.0 / CAST(f.`Enrollment (K-12)` AS REAL)) < 0.18",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the total number of non-chartered schools in Los Angeles County where the percent of eligible free meals for grades 1 through 12 is less than 0.18%. To answer this, we need to identify the relevant tables and columns. The schools table contains the Charter column indicating whether a school is chartered (Charter = 1) or non-chartered (Charter = 0 or NULL). The County column in the schools table identifies the county, which should be 'Los Angeles' for this query. The frpm table contains data about free meal counts and enrollment for K-12 grades, specifically the columns 'Free Meal Count (K-12)' and 'Enrollment (K-12)'. The percent eligible free meals for K-12 can be calculated as (Free Meal Count (K-12) * 100) / Enrollment (K-12). Since the question specifies less than 0.18%, the condition is that this calculated percentage is less than 0.18. The two tables are linked by the CDSCode column, which is the primary key in schools and foreign key in frpm. The query should join schools and frpm on CDSCode, filter for schools in Los Angeles County (schools.County = 'Los Angeles'), filter for non-chartered schools (schools.Charter = 0 or possibly NULL if non-chartered is represented by 0), and filter for percent eligible free meals less than 0.18%. Finally, the count of such schools should be returned. This detailed understanding of the database schema, column descriptions, and evidence allows us to rewrite the question clearly and precisely with explicit references to tables, columns, and conditions, making it easier to translate into SQL.",
+            "enriched_question": "Please find the total number of non-chartered schools (schools.Charter = 0) located in the county of Los Angeles (schools.County = 'Los Angeles') where the percent of eligible free meals for grades 1 through 12 is less than 0.18%. The percent eligible free meals for K-12 can be calculated as (frpm.`Free Meal Count (K-12)` * 100) divided by frpm.`Enrollment (K-12)`. Join the schools and frpm tables on the CDSCode column to apply these conditions and count the number of such schools.",
+            "prompt_tokens": 10075,
+            "completion_tokens": 490,
+            "total_tokens": 10565
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the total number of non-chartered schools in Los Angeles County where the percent of eligible free meals for grades 1 through 12 is less than 0.18%. The schools table contains the 'Charter' column indicating if a school is chartered (1) or non-chartered (0). The 'County' column identifies the county, which should be 'Los Angeles'. The frpm table contains 'Free Meal Count (K-12)' and 'Enrollment (K-12)' columns, which are used to calculate the percent eligible free meals as (Free Meal Count (K-12) * 100) / Enrollment (K-12). We join schools and frpm on CDSCode to combine the data. We filter for schools where schools.County = 'Los Angeles', schools.Charter = 0 (non-chartered), and the calculated percent eligible free meals is less than 0.18. We also ensure that 'Free Meal Count (K-12)' and 'Enrollment (K-12)' are not null to avoid division errors. Finally, we count the number of such schools. The SQL query uses proper casting to REAL for accurate division and includes all necessary conditions and joins.",
+            "predicted_sql": "SELECT COUNT(*) FROM `schools` AS `s` INNER JOIN `frpm` AS `f` ON `s`.`CDSCode` = `f`.`CDSCode` WHERE `s`.`County` = 'Los Angeles' AND `s`.`Charter` = 0 AND `f`.`Free Meal Count (K-12)` IS NOT NULL AND `f`.`Enrollment (K-12)` IS NOT NULL AND (CAST(`f`.`Free Meal Count (K-12)` AS REAL) * 100.0 / CAST(`f`.`Enrollment (K-12)` AS REAL)) < 0.18",
+            "prompt_tokens": 6197,
+            "completion_tokens": 389,
+            "total_tokens": 6586
+        },
+        "predicted_sql": "SELECT COUNT(*) FROM `schools` AS `s` INNER JOIN `frpm` AS `f` ON `s`.`CDSCode` = `f`.`CDSCode` WHERE `s`.`County` = 'Los Angeles' AND `s`.`Charter` = 0 AND `f`.`Free Meal Count (K-12)` IS NOT NULL AND `f`.`Enrollment (K-12)` IS NOT NULL AND (CAST(`f`.`Free Meal Count (K-12)` AS REAL) * 100.0 / CAST(`f`.`Enrollment (K-12)` AS REAL)) < 0.18",
+        "total_usage": {
+            "prompt_tokens": 20246,
+            "completion_tokens": 1144,
+            "total_tokens": 21390
+        },
+        "timing": {
+            "SF": 10.811991453170776,
+            "CSG": 7.6859965324401855,
+            "QE": 5.8034985065460205,
+            "SR": 8.516402006149292,
+            "total_time": 32.817888498306274
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    },
+    {
+        "question_id": 118,
+        "db_id": "financial",
+        "question": "For loan amount less than USD100,000, what is the percentage of accounts that is still running with no issue.",
+        "evidence": "Status = 'C' stands for running contract, ok so far; Percentage of accounts by condition = [(total(amount) & condition) / (total amount)] * 100.",
+        "SQL": "SELECT\n  CAST(SUM(`status` = 'C') AS DOUBLE) * 100 / COUNT(`account_id`)\nFROM `loan`\nWHERE\n  `amount` < 100000",
+        "difficulty": "moderate",
+        "schema_filtering": {
+            "filtering_reasoning": "The question asks for the percentage of accounts with loan amounts less than USD 100,000 that are still running with no issue. The key elements are loan amount, loan status, and account identification. The loan table contains the amount (approved amount in USD), status (repayment status with 'C' meaning running contract, OK so far), and account_id (to identify accounts). To calculate the percentage, we need to consider all loans with amount < 100000 and count how many have status 'C'. Therefore, only the loan table and its columns amount, status, and account_id are necessary to answer the question.",
+            "filtered_schema_dict": {
+                "loan": [
+                    "amount",
+                    "status",
+                    "account_id"
+                ]
+            },
+            "prompt_tokens": 5954,
+            "completion_tokens": 162,
+            "total_tokens": 6116
+        },
+        "schema_filtering_correction": {
+            "filtered_schema_problems": "",
+            "final_filtered_schema_dict": {
+                "loan": [
+                    "amount",
+                    "status",
+                    "account_id"
+                ]
+            }
+        },
+        "create_table_statement": "CREATE TABLE loan (\nloan_id INTEGER primary key, \naccount_id INTEGER,\namount INTEGER,\nstatus TEXT,\nforeing key (account_id) references account(account_id) \n)",
+        "candidate_sql_generation": {
+            "sql_generation_reasoning": "The question asks for the percentage of accounts with loans less than USD 100,000 that are still running with no issue. According to the evidence, status 'C' means running contract, OK so far. We need to calculate the total amount of loans less than 100,000 and the total amount of loans less than 100,000 with status 'C'. The percentage is (sum of amounts with status 'C' and amount < 100000) divided by (sum of amounts with amount < 100000) times 100. We will filter loans with amount < 100000, sum the amounts for all such loans, and sum the amounts for those with status 'C'. Then calculate the percentage accordingly. We ensure to handle null values by filtering amount IS NOT NULL. The final SQL query uses a single SELECT statement with conditional aggregation to compute the sums and calculate the percentage in one step.",
+            "possible_sql": "SELECT (CAST(SUM(CASE WHEN `status` = 'C' THEN `amount` ELSE 0 END) AS REAL) / CAST(SUM(`amount`) AS REAL)) * 100 AS percentage_running_no_issue FROM `loan` WHERE `amount` < 100000 AND `amount` IS NOT NULL",
+            "exec_err": "",
+            "prompt_tokens": 2771,
+            "completion_tokens": 262,
+            "total_tokens": 3033
+        },
+        "possible_sql": "SELECT (CAST(SUM(CASE WHEN `status` = 'C' THEN `amount` ELSE 0 END) AS REAL) / CAST(SUM(`amount`) AS REAL)) * 100 AS percentage_running_no_issue FROM `loan` WHERE `amount` < 100000 AND `amount` IS NOT NULL",
+        "question_enrichment": {
+            "enrichment_reasoning": "The original question asks for the percentage of accounts with loans less than USD 100,000 that are still running with no issues. From the database schema, the relevant table is 'loan' which contains columns 'amount' (approved loan amount in USD), 'status' (repayment status), and 'account_id' (identifying the account). The status column has specific codes: 'C' means running contract with no issues. To answer the question, we need to consider all loans with amount less than 100,000 USD (loan.amount < 100000). Among these loans, we need to find how many have status 'C' (loan.status = 'C'). The percentage is calculated as (number of accounts with loans < 100,000 and status 'C') divided by (total number of accounts with loans < 100,000) multiplied by 100. Since multiple loans can belong to the same account, the calculation should consider distinct accounts. The SQL query would involve filtering loans by amount < 100,000, grouping or counting distinct account_ids with status 'C' and total distinct account_ids, then computing the percentage. The question should explicitly mention the loan table, the amount and status columns, the condition on amount (< 100,000), the status code 'C' meaning running contract with no issues, and that the percentage is calculated over accounts (distinct account_id). This makes the question clearer, more precise, and easier to translate into SQL.",
+            "enriched_question": "Please find the percentage of accounts (distinct loan.account_id) that have loans with an approved amount less than 100,000 USD (loan.amount < 100000) and whose loan repayment status is 'C' indicating a running contract with no issues (loan.status = 'C'). Calculate this percentage as the number of such accounts divided by the total number of accounts with loans less than 100,000 USD, multiplied by 100. Use the loan table and consider the amount and status columns for filtering and calculation.",
+            "prompt_tokens": 6111,
+            "completion_tokens": 420,
+            "total_tokens": 6531
+        },
+        "sql_refinement": {
+            "sql_generation_reasoning": "The question asks for the percentage of accounts with loans less than 100,000 USD that are still running with no issues. The relevant table is 'loan' with columns 'amount', 'status', and 'account_id'. We need to consider distinct accounts, not loans, because an account can have multiple loans. First, we filter loans with amount < 100000. Then, we find the count of distinct account_ids with status 'C' (running contract, no issues) among these filtered loans. Next, we find the total count of distinct account_ids with loans less than 100,000. The percentage is (count of distinct accounts with status 'C') / (total count of distinct accounts) * 100. The possible SQL query given incorrectly sums amounts instead of counting distinct accounts. Also, it does not consider distinct accounts. Therefore, the correct query uses subqueries or conditional aggregation to count distinct accounts. We ensure to filter out null amounts to avoid errors. The final query calculates the percentage as required, using proper casting to REAL for division and multiplying by 100 for percentage. This approach accurately reflects the question's intent and database schema.",
+            "predicted_sql": "SELECT (CAST(COUNT(DISTINCT CASE WHEN `loan`.`status` = 'C' THEN `loan`.`account_id` END) AS REAL) / CAST(COUNT(DISTINCT `loan`.`account_id`) AS REAL)) * 100 AS percentage_running_no_issue FROM `loan` WHERE `loan`.`amount` < 100000 AND `loan`.`amount` IS NOT NULL",
+            "prompt_tokens": 2534,
+            "completion_tokens": 326,
+            "total_tokens": 2860
+        },
+        "predicted_sql": "SELECT (CAST(COUNT(DISTINCT CASE WHEN `loan`.`status` = 'C' THEN `loan`.`account_id` END) AS REAL) / CAST(COUNT(DISTINCT `loan`.`account_id`) AS REAL)) * 100 AS percentage_running_no_issue FROM `loan` WHERE `loan`.`amount` < 100000 AND `loan`.`amount` IS NOT NULL",
+        "total_usage": {
+            "prompt_tokens": 11416,
+            "completion_tokens": 1008,
+            "total_tokens": 12424
+        },
+        "timing": {
+            "SF": 26.893249988555908,
+            "CSG": 8.092887878417969,
+            "QE": 4.257046222686768,
+            "SR": 10.52180552482605,
+            "total_time": 49.764989614486694
+        },
+        "results": {
+            "exec_res": 1,
+            "exec_err": "--"
+        }
+    }
+]
